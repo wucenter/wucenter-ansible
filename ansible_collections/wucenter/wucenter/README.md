@@ -6,30 +6,30 @@
 <!-- MarkdownTOC autolink="true" style="unordered" -->
 
 - [Features](#features)
-    - ["Elastic" resources](#elastic-resources)
-    - [Configurable resources](#configurable-resources)
-    - [Additional roles management](#additional-roles-management)
-    - [Transparent Ansible Vault support](#transparent-ansible-vault-support)
+  - ["Elastic" resources](#elastic-resources)
+  - [Configurable resources](#configurable-resources)
+  - [Additional roles management](#additional-roles-management)
+  - [Transparent Ansible Vault support](#transparent-ansible-vault-support)
 - [Requirements](#requirements)
 - [Install](#install)
 - [Getting started](#getting-started)
 - [Documentation](#documentation)
-    - [Setup](#setup)
-    - [Workspace](#workspace)
-    - [Player](#player)
-        - [Features](#features-1)
-        - [Usage](#usage)
-    - [Playbooks](#playbooks)
-    - [Credentials](#credentials)
-        - [Credentials Spec](#credentials-spec)
-        - [Using Ansible Vault](#using-ansible-vault)
-    - [VMs Inventory](#vms-inventory)
-        - [VMs Inventory Spec](#vms-inventory-spec)
-            - [VMs automation tags](#vms-automation-tags)
-            - [VMs roles tags](#vms-roles-tags)
-    - [Users directory](#users-directory)
-        - [Users directory Spec](#users-directory-spec)
-    - [References](#references)
+  - [Setup](#setup)
+  - [Workspace](#workspace)
+  - [Player](#player)
+    - [Features](#features-1)
+    - [Usage](#usage)
+  - [Playbooks](#playbooks)
+  - [Credentials](#credentials)
+    - [Credentials Spec](#credentials-spec)
+    - [Using Ansible Vault](#using-ansible-vault)
+  - [VMs Inventory](#vms-inventory)
+    - [VMs Inventory Spec](#vms-inventory-spec)
+      - [VMs automation tags](#vms-automation-tags)
+      - [VMs roles tags](#vms-roles-tags)
+  - [Users directory](#users-directory)
+    - [Users directory Spec](#users-directory-spec)
+  - [References](#references)
 - [Roadmap](#roadmap)
 
 <!-- /MarkdownTOC -->
@@ -273,7 +273,7 @@ More playbooks are provided:
 
 ### Credentials
 
-Following credentials definitions a required:
+Following credentials definitions are required:
 + vCenter server admin
 + Template password-less sudoer (for provisioning)
 + `robops` sudoer (for alignment)
@@ -390,7 +390,7 @@ This enables multi-level variables overrides. Recommended usage is mapping proje
 
 #### VMs Inventory Spec
 
-Each VM identified by a **unique** key, may specify following attributes:
+Each VM identified by a **unique** key, holds the following attributes:
 
 | VM Unique Id | Description                                                |
 | :----------  | :--------------------------------------------------------- |
@@ -499,16 +499,16 @@ User management is currently limited to two hard-coded groups:
 | Main playbooks     | `robops` | `ops` |
 | :-------------     | :---     | :---  |
 | `apply.yml`        | ✔        | ✔     |
-| `scan.yml`         |          |       |
+| `scan.yml`         | ✔        |       |
 | `decommission.yml` |          |       |
-| `rename.yml`       |          |       |
+| `rename.yml`       | ✔        |       |
 | `provision.yml`    | ✔        |       |
 | `align.yml`        | ✔        |       |
-| `apps.yml`         | ❓        | ❓     |
+| `apps.yml`         |          | ✔     |
 | More playbooks     |          |       |
 | `lint_full.yml`    | ✔        |       |
 | `lint.yml`         | ✔        |       |
-| `audit.yml`        |          |       |
+| `audit.yml`        | ✔        |       |
 | `updates.yml`      | ✔        |       |
 | `init.yml`         |          |       |
 | `setup.yml`        |          |       |
@@ -543,11 +543,11 @@ User management is currently limited to two hard-coded groups:
 ### References
 
 - [Ansible VMware modules](https://docs.ansible.com/ansible/latest/modules/list_of_cloud_modules.html#vmware)
-- [Ansible VMware source code (=2.9.7)](https://github.com/ansible/ansible/tree/v2.9.7/lib/ansible/modules/cloud/vmware)
+- [Ansible VMware source code (=2.9.9)](https://github.com/ansible/ansible/tree/v2.9.9/lib/ansible/modules/cloud/vmware)
 - [Ansible VMware source code (>=2.10)](https://github.com/ansible-collections/vmware/tree/master/plugins/modules)
 - [Ansible core filters](https://github.com/ansible/ansible/blob/devel/lib/ansible/plugins/filter/core.py)
 - [Jinja2 builtin filters](https://jinja.palletsprojects.com/en/2.11.x/templates/#list-of-builtin-filters)
-- [JMESPath spec (`json_query()`)](https://jmespath.org/specification.html)
+- [JMESPath spec](https://jmespath.org/specification.html) (`json_query()`)
 - [Python regular expressions](https://docs.python.org/3/library/re.html)
 - [YAML Block Chomping](https://yaml-multiline.info/)
 - [YAML Gotchas](https://www.arp242.net/yaml-config.html)
