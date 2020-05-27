@@ -1,0 +1,42 @@
+#!./wucenter_player.sh --vault --no-cache --no-deps --no-role --no-ipam
+---
+
+- import_playbook: init.yml
+
+- name: Audit vCenter VMs
+  hosts:                        vms
+  gather_facts:                 false
+  collections:
+  - community.general
+  - community.vmware
+  - wucenter.wucenter
+  vars_files:
+  - "{{ wucenter_basedir }}credentials/vcenter.yml"
+  - "{{ wucenter_basedir }}credentials/robops.yml"
+  vars:
+    ansible_play:               audit
+  roles:
+  - wucenter_scan_mini
+  - wucenter_scan_full
+
+- name: Audit vCenter VMs
+  hosts:                        vms
+  gather_facts:                 false
+  collections:
+  - community.general
+  - community.vmware
+  - wucenter.wucenter
+  vars_files:
+  - "{{ wucenter_basedir }}credentials/vcenter.yml"
+  - "{{ wucenter_basedir }}credentials/robops.yml"
+  vars:
+    ansible_play:               audit
+  roles:
+  - wucenter_audit
+
+# - name: Audit vCenter VMs state
+#   hosts:                        vms
+#   gather_facts:                 false
+#   roles:
+
+# TODO diff / meld if installed

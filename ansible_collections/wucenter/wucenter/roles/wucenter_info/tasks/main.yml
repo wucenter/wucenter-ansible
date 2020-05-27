@@ -1,0 +1,18 @@
+---
+
+- name: Tasks   | Pull vCenter info
+  include_tasks:                info_vcenter.yml
+
+- name: Tasks   | Pull auto-inventory
+  include_tasks:                info_inventory.yml
+
+- debug: var=vcenter_folders
+- debug: var=vcenter_datastores
+- debug: var=vcenter_clusters
+- debug: var=vcenter_networks_by_cluster
+# - debug: var=vcenter_networks
+# - debug: var=vcenter_pools
+# - debug: var=vcenter_pools_by_cluster
+# - debug: var=vcenter_inventory
+- debug: var=vcenter_vms_unmanaged
+- debug: var=vcenter_ips_unmanaged

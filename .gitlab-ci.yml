@@ -1,0 +1,26 @@
+stages:
+  - build_collection
+  # - publish_collection
+  # - build_image
+
+# DOC Requires $GALAXY_API_KEY
+# DEV Uses     $CI_COMMIT_TAG
+build_collection:
+  stage: build_collection
+  only:
+    - tags
+  image: ubuntu:18.04
+  script:
+    - apt-get update
+    - apt-get install -y python3-pip
+    - pip3 install --no-cache-dir --upgrade pip ansible
+    - mkdir build/
+    - cd ansible_collections/wucenter/wucenter
+    - chmod 770 .  # DEV https://docs.ansible.com/ansible/devel/reference_appendices/config.html#cfg-in-world-writable-dir
+    - sed -i -E 's/(version:\s+).*$/\1'"$CI_COMMIT_TAG"'/' galaxy.yml # DEV Set version from tag
+    - ansible-galaxy collection build --output-path ../../../build/
+    - ansible-galaxy collection publish ../../../build/wucenter-wucenter-*.tar.gz --api-key=$GALAXY_API_KEY
+  artifacts:
+    expire_in: '1 hour'
+    paths:
+      - build/wucenter-wucenter-*.tar.gz

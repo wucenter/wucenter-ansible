@@ -1,0 +1,44 @@
+---
+
+- name: "vSphere | Revoke SSH keys"
+  with_subelements:
+  - "{{ users | dict2items }}"
+  - value.user_keys
+  - skip_missing: True
+  when:
+  - item.0.user_tags | default({}) | intersect(['ops', 'robops'])
+  - ( item.0.value.user_state is not defined) or ( item.0.value.user_state != 'absent' )
+  - item.1.state is defined
+  - item.1.state == 'absent'
+  - item.1.ssh_rsa is defined
+  - item.1.ssh_rsa | length >0
+  vars:
+    vmware_vm_linenotinfile_path: "/home/{{ item.0.key }}/.ssh/authorized_keys"
+    vmware_vm_linenotinfile_data: "ssh-rsa {{ item.1.ssh_rsa }} {{ item.1.comment | default }}"
+  include_role:
+    name:                         vmware_vm_linenotinfile
+
+
+
+- name: "vSphere | Install SSH keys"
+  with_subelements:
+  - "{{ users | dict2items }}"
+  - value.user_keys
+  - skip_missing: True
+  when:
+  - ( item.0.value.user_state is not defined) or ( item.0.value.user_state != 'absent' )
+  - item.0.user_tags | default({}) | intersect(['ops', 'robops'])
+  - ( item.1.state is not defined ) or ( item.1.state != 'absent' )
+  - item.1.ssh_rsa is defined
+  - item.1.ssh_rsa | length >0
+  vars:
+    vmware_vm_lineinfile_path:  "/home/{{ item.0.key }}/.ssh/authorized_keys"
+    vmware_vm_lineinfile_data:  "ssh-rsa {{ item.1.ssh_rsa }} {{ item.1.comment | default }}"
+  include_role:
+    name:                       vmware_vm_lineinfile
+
+
+# TODO awk
+# awk 'BEGIN{ getline ; t=$1 ; k=$2  ; c=$3 ; print t,k,c } !((typ==$1)&&(k==$2)&&(c==$3)) && 0' <<'EOF' /TARGET_FILE
+# ssh-rsa key comment
+# EOF

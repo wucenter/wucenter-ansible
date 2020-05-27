@@ -1,0 +1,37 @@
+---
+
+- name: "vSphere | Set line in file:  {{ vmware_vm_lineinfile_path }}"
+  delegate_to:                    localhost
+  register:                       vmware_vm_lineinfile_info
+  changed_when:                   vmware_vm_lineinfile_info.exit_code is defined and vmware_vm_lineinfile_info.exit_code == 125
+  failed_when:                    |
+    (   vmware_vm_lineinfile_info.exit_code is not defined
+    )
+    or
+    (   vmware_vm_lineinfile_info.exit_code != 125
+    and vmware_vm_lineinfile_info.exit_code != 0
+    )
+  vars:
+    vmware_vm_lineinfile_here:    "\n{{ vmware_vm_lineinfile_data }}\nEOF_8e87v3.4r97f86\n"
+  vmware_vm_shell:                # DOC https://docs.ansible.com/ansible/latest/modules/vmware_vm_shell_module.html
+    validate_certs:               false
+    wait_for_process:             true
+    username:                     "{{ vcenter_user }}"
+    password:                     "{{ vcenter_pass }}"
+    hostname:                     "{{ vcenter_host }}"
+    datacenter:                   "{{ vcenter_dc }}"
+    vm_id:                        "{{ vm_name }}"
+    folder:                       "{{ vm_folder }}"
+    vm_username:                  "{{ robops_user }}"
+    vm_password:                  "{{ robops_pass }}"
+    vm_shell:                     /bin/bash
+    vm_shell_args:                |
+      -c <<'EOF_8e87v3.4r97f86' "
+          if ! sudo grep -Fx -f /dev/fd/0 {{ vmware_vm_lineinfile_path | quote }} ; then
+               sudo tee -a {{ vmware_vm_lineinfile_path | quote }} \
+                 < <( cat /dev/fd/0 <<'EOF_8e87v3.4r97f86' "{{ vmware_vm_lineinfile_here | quote }}" ) \
+            && exit 125
+            exit 1
+          fi"
+      {{ vmware_vm_lineinfile_data }}
+      EOF_8e87v3.4r97f86

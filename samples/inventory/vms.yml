@@ -1,0 +1,104 @@
+---
+
+# DOC: only "vars", "children" and "hosts" are valid in groups
+
+
+all:  # TIP group: LEVEL 0
+
+  # hosts: # TIP groups.ungrouped: LEVEL 0
+
+  children:
+
+    vms: # TIP group: LEVEL 1
+
+      vars:
+
+        # VM Defaults: resources
+        vm_cluster:               ClusterName
+        vm_datastore:             DatastoreName
+        vm_network:               NetworkName
+        vm_folder:                /
+
+        # VM Defaults: network
+        vm_net_sd:                domain.tld
+        vm_net_gw:                10.0.1.254
+        vm_net_nm:                255.255.255.0
+        vm_net_ns1:               8.8.8.8
+        vm_net_ns2:               8.8.4.4
+
+        # VM Defaults: hardware
+        vm_power:                 true
+        vm_hotplug:               true
+        vm_ram_reserved:          true
+        vm_cpu:                   1     # TIP minimum
+        vm_ram:                   3200  # TIP minimum to use hotadd, can grow up to 16X = 51200 Mb = 50Gb # DOC https://kb.vmware.com/s/article/2008405
+        vm_disk:                  2048  # TIP minimum from template
+        vm_swap:                  0     # TIP disabled
+
+      children:
+
+        ###########
+        # PROJECT #                 Sample One
+        ###########
+
+        sample_one_project:  # TIP group: LEVEL 2
+
+          vars:
+            vm_folder:                /sample_one_project
+            vm_net_sd:                sample-one-project.tld
+
+          hosts:
+
+            host1:                              # TIP FQDN will be host1.sample-one-project.tld
+              vm_net_ip:              10.0.1.1  # TIP Mandatory unique static IP
+              vm_cpu:                 2
+              vm_disk:                4096
+              vm_swap:                4096
+              vm_ram:                 4096
+              vm_auto:
+              - auto                            # TIP Mandatory, otherwise unmanaged by WUcenter
+
+            host2:                              # TIP FQDN will be host2.sample-one-project.tld
+              vm_net_ip:              10.0.1.2  # TIP Mandatory unique static IP
+              vm_auto:
+              - auto                            # TIP Mandatory, otherwise unmanaged by WUcenter
+              state:                  absent    # TIP VM will be removed !!!
+
+            unmanaged:                          # TIP Ignored VM because of commented vm_auto tags
+              vm_net_ip:              10.0.1.3
+              # vm_auto:                [auto]
+
+        ###########
+        # PROJECT #                 Sample Two
+        ###########
+
+        sample_two_project:  # TIP group: LEVEL 2
+
+          vars:
+            vm_folder:                /sample_two_project
+            vm_network:               AnotherNetwork
+            vm_net_sd:                sample-two-project.tld
+            vm_net_gw:                10.0.3.254
+            vm_net_nm:                255.255.255.0
+            vm_cpu:                   2
+            vm_disk:                  4096
+            vm_swap:                  4096
+            vm_ram:                   4096
+
+          hosts:
+
+            host1:                              # TIP FQDN will be host1.sample-two-project.tld
+              vm_net_ip:              10.0.3.1
+              vm_auto:
+              - auto
+
+            ansible:                            # TIP FQDN will be ansible.sample-two-project.tld
+              vm_net_ip:              10.0.3.10
+              vm_auto:
+              - auto
+              vm_roles:
+              - galaxy/geerlingguy.git
+              - apps/wucenter
+              vm_vars:
+                git_creds_path:       /it/creds/dc-wu-opname
+                git_inventory_path:   /it/state/dc-wu

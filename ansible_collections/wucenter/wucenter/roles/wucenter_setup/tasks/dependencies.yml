@@ -1,0 +1,10 @@
+---
+
+- name: Deps    | Install Python packages
+  delegate_to:            localhost
+  changed_when:           false
+  command:                pip3 install --user --upgrade jmespath netaddr pyvmomi
+
+# DEV pyvmomi  for vmware_* modules
+# DEV jmespath for json_query() filter
+# DEV netaddr  for ipaddr() filter

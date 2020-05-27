@@ -1,0 +1,152 @@
+---
+
+# LIST
+
+- name: Checks  | vm_auto
+  when:
+  - vm_auto is defined
+  - (vm_auto is string) or (vm_auto is mapping) or (vm_auto is not sequence)
+  fail:
+    msg: "Invalid vm_auto type for host '{{ vm_name }}'"
+
+- name: Checks  | vm_roles
+  when:
+  - vm_roles is defined
+  - (vm_roles is string) or (vm_roles is mapping) or (vm_roles is not sequence)
+  fail:
+    msg: "Invalid vm_roles type for host '{{ vm_name }}'"
+
+
+
+# DICT
+
+# vm_vars: [ a ]          # BUG lint_types
+- name: Checks  | vm_vars
+  when:
+  - vm_vars is defined
+  - vm_vars is not mapping
+  fail:
+    msg: "Invalid vm_vars type for host '{{ vm_name }}'"
+
+
+
+# BOOL
+
+- name: Checks  | vm_hotplug
+  when: ( vm_hotplug | bool != vm_hotplug )
+  fail:
+    msg: "Invalid vm_hotplug value '{{ vm_hotplug }}' for host '{{ vm_name }}'"
+
+- name: Checks  | vm_ram_reserved
+  when: ( vm_ram_reserved | bool != vm_ram_reserved )
+  fail:
+    msg: "Invalid vm_ram_reserved value '{{ vm_ram_reserved }}' for host '{{ vm_name }}'"
+
+- name: Checks  | vm_power
+  when: ( vm_power | bool != vm_power )
+  fail:
+    msg: "Invalid vm_power value '{{ vm_power }}' for host '{{ vm_name }}'"
+
+
+
+# INT
+
+- name: Checks  | vm_cpu
+  when: ( vm_cpu | int != vm_cpu ) or ( vm_cpu <1 ) or ( vm_cpu >128 ) # DEV: Max 128 cores
+  fail:
+    msg: "Invalid vm_cpu value '{{ vm_cpu }}' for host '{{ vm_name }}'"
+
+- name: Checks  | vm_disk
+  when: ( vm_disk | int != vm_disk ) or ( vm_disk <1 ) or ( vm_disk >2097152 ) # DEV: Max 2 TB
+  fail:
+    msg: "Invalid vm_disk value '{{ vm_disk }}' for host '{{ vm_name }}'"
+
+- name: Checks  | vm_swap
+  when:
+  - vm_swap is defined
+  - ( vm_swap | int != vm_swap ) or ( vm_swap <0 ) or ( vm_swap >262144 ) # DEV: Max 256 GB
+  fail:
+    msg: "Invalid vm_swap value '{{ vm_swap }}' for host '{{ vm_name }}'"
+
+- name: Checks  | vm_ram
+  when: ( vm_ram | int != vm_ram ) or ( vm_ram <1 ) or ( vm_ram >262144 ) or ( ( vm_ram % 128 ) != 0 )  # DEV: Max 256 GB, Modulo 128 MB
+  fail:
+    msg: "Invalid vm_ram value '{{ vm_ram }}' for host '{{ vm_name }}', MUST be divisible by 128"
+
+
+
+# HOSTNAME
+
+- name: Checks  | vm_name
+  when: ( vm_name is not match(regex_hostname) ) or ( vm_name | length > 253 )
+  fail:
+    msg: "Invalid vm_name value '{{ vm_name }}'"
+
+- name: Checks  | vm_rename
+  when:
+  - vm_rename is defined
+  - ( vm_rename is not match(regex_hostname) ) or ( vm_rename | length > 253 )
+  fail:
+    msg: "Invalid vm_rename value '{{ vm_rename }}' for host '{{ vm_name }}'"
+
+- name: Checks  | vm_net_sd
+  when: ( vm_net_sd is not match(regex_hostname) ) or ( vm_net_sd | length > 253 )
+  fail:
+    msg: "Invalid vm_net_sd value '{{ vm_net_sd }}' for host '{{ vm_name }}'"
+
+
+
+# NAME
+
+- name: Checks  | vm_cluster
+  when: vm_cluster is not match(regex_name)
+  fail:
+    msg: "Invalid vm_cluster value '{{ vm_cluster }}' for host '{{ vm_name }}'"
+
+- name: Checks  | vm_datastore
+  when: vm_datastore is not match(regex_name)
+  fail:
+    msg: "Invalid vm_datastore value '{{ vm_datastore }}' for host '{{ vm_name }}'"
+
+- name: Checks  | vm_network
+  when: vm_network is not match(regex_name)
+  fail:
+    msg: "Invalid vm_network value '{{ vm_network }}' for host '{{ vm_name }}'"
+
+
+
+# FOLDER
+
+- name: Checks  | vm_folder
+  when: vm_folder is not match(regex_folder)
+  fail:
+    msg: "Invalid vm_folder value '{{ vm_folder }}' for host '{{ vm_name }}'"
+
+
+
+# IP
+
+- name: Checks  | vm_net_ip
+  when: not vm_net_ip | ansible.netcommon.ipv4
+  fail:
+    msg: "Invalid vm_net_ip value '{{ vm_net_ip }}' for host '{{ vm_name }}'"
+
+- name: Checks  | vm_net_gw
+  when: not vm_net_gw | ansible.netcommon.ipv4
+  fail:
+    msg: "Invalid vm_net_gw value '{{ vm_net_gw }}' for host '{{ vm_name }}'"
+
+- name: Checks  | vm_net_nm
+  when: not vm_net_nm | ansible.netcommon.ipv4
+  fail:
+    msg: "Invalid vm_net_nm value '{{ vm_net_nm }}' for host '{{ vm_name }}'"
+
+- name: Checks  | vm_net_ns1
+  when: not vm_net_ns1 | ansible.netcommon.ipv4
+  fail:
+    msg: "Invalid vm_net_ns1 value '{{ vm_net_ns1 }}' for host '{{ vm_name }}'"
+
+- name: Checks  | vm_net_ns2
+  when: not vm_net_ns2 | ansible.netcommon.ipv4
+  fail:
+    msg: "Invalid vm_net_ns2 value '{{ vm_net_ns2 }}' for host '{{ vm_name }}'"

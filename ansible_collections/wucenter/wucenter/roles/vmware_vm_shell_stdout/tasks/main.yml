@@ -1,0 +1,10 @@
+---
+
+- import_tasks: check_vars.yml
+
+# DEV Random file will exist both on ansible host and remote VM
+- name: Facts   | Init random
+  set_fact:
+    vmware_vm_shell_stdout_tmp: "/tmp/ansible_{{ 99999999 | random }}"
+
+- import_tasks: vmware_vm_shell_stdout.yml

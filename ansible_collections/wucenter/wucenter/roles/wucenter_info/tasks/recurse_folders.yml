@@ -1,0 +1,30 @@
+---
+
+- block:
+
+
+  - name: Facts   | Parse folder
+    no_log:                       true
+    when:                         vcenter_info_folders_data.path is defined
+    set_fact:
+      vcenter_folders:            "{{ vcenter_folders | default([]) + [ vcenter_info_folders_data.path | regex_replace('^/'+vcenter_dc+'/vm', '') | default('/', true) ] | sort | unique }}"
+      temp_folders:               "{{ vcenter_info_folders_data.subfolders }}"
+
+
+  - name: NOT AN ERROR | Recursion trick
+    no_log:                       true
+    fail:
+
+
+  rescue:
+
+
+  - name: Facts   | Recurse folder
+    no_log: true
+    when:                         folder_item.value | length >0
+    with_dict:                    "{{ temp_folders }}"
+    loop_control:
+      loop_var:                   folder_item
+    include_tasks:                recurse_folders.yml
+    vars:
+      vcenter_info_folders_data: "{{ folder_item.value }}"

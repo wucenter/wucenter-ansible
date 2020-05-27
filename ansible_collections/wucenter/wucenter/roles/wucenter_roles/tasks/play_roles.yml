@@ -1,0 +1,92 @@
+---
+
+
+
+- name: Local   | Unset Vault vars from arbitrary roles
+  no_log:                   true
+  set_fact:
+    vault_args:             null
+    vault_pass:             null
+# DEV Rogue role still can include using `var_files:`
+
+
+
+- name: Vault   | Decrypt SSH private key
+  run_once:                 true
+  changed_when:             false
+  local_action:             # DOC https://docs.ansible.com/ansible/latest/modules/copy_module.html
+    module:                 copy
+    dest:                   "{{ wucenter_basedir }}credentials/SSH_SKEY"
+    content:                "{{ ops_sshk }}\n"
+    mode:                   '0600'
+
+
+
+- name: Facts   | Ansible facts
+  no_log:                   true
+  set_fact:
+    ansible_ssh_private_key_file: "{{ wucenter_basedir }}credentials/SSH_SKEY"
+
+
+
+- name: Checks  | Check host is SSH reachable
+  ignore_unreachable:       true
+  changed_when:             false
+  register:                 check_ssh_reachable
+  command:                  # DOC https://docs.ansible.com/ansible/latest/modules/command_module.html
+    cmd:                    uname
+- name: Checks  | Unreachable
+  when:                     check_ssh_reachable is not reachable
+  fail:
+    msg:                    "Unreachable ssh://{{ ops_user }}@{{ ansible_host }}"
+
+
+
+- name: Roles   | Import apps/ tagged roles
+  when:
+    - ( state is not defined ) or ( state != 'absent' )
+    - vm_auto | default({}) | intersect(['auto', 'auto/all', 'auto/manage', 'auto/roles'])
+    - lookup('first_found', first_found_args)
+  loop:                     "{{ vm_roles | default({}) | select('match', '^apps/') | map('regex_replace', '^apps/', '') | list }}"
+  loop_control:
+    loop_var:               apps_item
+  vars:
+    first_found_args:
+      files:                [ "{{ apps_item }}" ]
+      paths:                [ '{{ wucenter_basedir }}/roles' ]
+      errors:               ignore
+  include_role:
+    name:                   "{{ apps_item }}"
+    apply:
+      become:               true
+
+
+
+- name: Roles   | Import galaxy/ tagged roles
+  when:
+    - ( state is not defined ) or ( state != 'absent' )
+    - vm_auto | default({}) | intersect(['auto', 'auto/all', 'auto/manage', 'auto/roles'])
+    - lookup('first_found', first_found_args)
+  loop:                     "{{ vm_roles | default({}) | select('match', '^galaxy/') | map('regex_replace', '^galaxy/', '') | list }}"
+  loop_control:
+    loop_var:               galaxy_item
+  vars:
+    first_found_args:
+      files:                [ "{{ galaxy_item }}" ]
+      paths:                [ '{{ wucenter_basedir }}/roles_galaxy' ]
+      errors:               ignore
+  include_role:
+    name:                   "{{ galaxy_item }}"
+    apply:
+      become:               true
+
+
+- name: Vars    | vCenter credentials
+  no_log: true
+  include_vars:
+    file:                   "{{ wucenter_basedir }}credentials/vcenter.yml"
+
+- name: Tasks   | Bury apps attributes
+  # become:                   false  # DEV: playbook may be set as become:true
+  include_role:
+    name:                   wucenter_bury_apps

@@ -1,0 +1,27 @@
+---
+
+- block:
+
+  - import_tasks: check_vars.yml
+
+
+  - import_tasks: rename_vm.yml
+
+
+  rescue:
+  - include_role:
+      name:       wucenter_bury_fail
+  - fail:
+      msg:        "Failed to rename VM"
+
+
+  when:
+  - (state is not defined ) or ( state != 'absent' )
+  - vm_rename is defined
+  - vm_rename | trim != ''
+  - vm_rename != vm_name
+  - vm_rename != scan_native.instance.hw_name
+  - scan_native.instance.hw_product_uuid is defined
+  - scan_native.instance.hw_product_uuid is not none
+  - scan_native.instance.hw_product_uuid | trim != ''
+  - vm_auto | default({}) | intersect(['auto', 'auto/all', 'auto/manage', 'auto/rename'])

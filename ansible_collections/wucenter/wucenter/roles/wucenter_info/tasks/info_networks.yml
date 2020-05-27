@@ -1,0 +1,41 @@
+---
+
+- name: vCenter | Pull networks by cluster
+  delegate_to:                  localhost
+  register:                     scan_networks
+  vmware_portgroup_info:        # DOC https://docs.ansible.com/ansible/latest/modules/vmware_portgroup_info_module.html
+    validate_certs:             false
+    username:                   "{{ vcenter_user }}"
+    password:                   "{{ vcenter_pass }}"
+    hostname:                   "{{ vcenter_host }}"
+    cluster_name:               "{{ vcenter_pull_networks_cluster }}"
+
+
+
+- name: Facts   | Pre-parse networks
+  set_fact:
+    temp_networks: |
+        {% set temp_nets = [] -%}
+        {% for portgroup_host in scan_networks.hosts_portgroup_info -%}
+          {% for pg in scan_networks.hosts_portgroup_info[portgroup_host] -%}
+            {% set temp_nets = temp_nets.extend([ pg.portgroup ]) -%}
+          {%- endfor %}
+        {%- endfor %}
+        {{ temp_nets | sort | unique }}
+
+
+
+- name: Facts   | Parse networks by cluster
+  when:                         temp_networks is defined
+  set_fact:
+    vcenter_networks_by_cluster: "{{ vcenter_networks_by_cluster | default({}) | combine({ vcenter_pull_networks_cluster: temp_networks }) }}"
+    temp_networks:
+
+
+
+# - name: Facts   | Parse all networks
+#   with_items:                   "{{ vcenter_networks_by_cluster }}"
+#   loop_control:
+#     loop_var:                   cluster_item
+#   set_fact:
+#     vcenter_networks: "{{ ( vcenter_networks | default([]) + vcenter_networks_by_cluster[ cluster_item ] ) | sort | unique }}"

@@ -1,0 +1,45 @@
+---
+
+- name: "vSphere | Setup VMs root disk"
+  delegate_to:                  localhost
+  register:                     info
+  vmware_guest_disk:            # DOC https://docs.ansible.com/ansible/latest/modules/vmware_guest_disk_module.html
+    validate_certs:             false
+    username:                   "{{ vcenter_user }}"
+    password:                   "{{ vcenter_pass }}"
+    hostname:                   "{{ vcenter_host }}"
+    datacenter:                 "{{ vcenter_dc }}"
+    name:                       "{{ vm_name }}"
+    folder:                     "{{ vm_folder }}"
+    disk:
+      - size_mb:                "{{ vm_disk }}"
+        state:                  present
+        scsi_controller:        0
+        unit_number:            0
+        datastore:              "{{ vm_datastore }}"
+        type:                   thin
+
+
+
+- name: "vSphere | Grow VMs root file system"
+  delegate_to:                    localhost
+  changed_when:                   info.exit_code is defined and info.exit_code == 0
+  failed_when:                    info.exit_code is defined and info.exit_code != 0
+  register:                       info
+  vmware_vm_shell:                # DOC https://docs.ansible.com/ansible/latest/modules/vmware_vm_shell_module.html
+    validate_certs:               false
+    wait_for_process:             true
+    username:                     "{{ vcenter_user }}"
+    password:                     "{{ vcenter_pass }}"
+    hostname:                     "{{ vcenter_host }}"
+    datacenter:                   "{{ vcenter_dc }}"
+    vm_id:                        "{{ vm_name }}"
+    folder:                       "{{ vm_folder }}"
+    vm_username:                  "{{ robops_user }}"
+    vm_password:                  "{{ robops_pass }}"
+    vm_shell:                     /bin/bash
+    vm_shell_args:                |
+      -c 'ID=sda ; DISK=/dev/$ID ; PART=${DISK}1
+         sudo tee /sys/block/$ID/device/rescan <<<1 \
+      && sudo fdisk $DISK < <( echo -en "d\nn\np\n\n\n\nn\nw\n" ) \
+      && sudo resize2fs $PART'

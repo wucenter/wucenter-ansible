@@ -1,0 +1,94 @@
+---
+
+- block:
+
+  - name: "vSphere | Run shell command: {% if (vmware_vm_shell_stdout_lab is defined) and (vmware_vm_shell_stdout_lab | length > 0) %}{{ vmware_vm_shell_stdout_lab }}{% else %}{{ vmware_vm_shell_stdout_bin | regex_replace('^(.*/)?([^/]+)$', '\\2') }}{% endif %}"
+    delegate_to:                    localhost
+    changed_when:                   vmware_vm_shell_stdout_cro|default(false) != true
+    register:                       vmware_vm_shell_stdout_info
+    # vars:
+    #   vmware_vm_shell_stdout_info:  "{{ vmware_vm_shell_stdout_info | default('info') }}"
+    vmware_vm_shell:                # DOC https://docs.ansible.com/ansible/latest/modules/vmware_vm_shell_module.html
+      wait_for_process:             true
+      validate_certs:               false
+      username:                     "{{ vcenter_user }}"
+      password:                     "{{ vcenter_pass }}"
+      hostname:                     "{{ vcenter_host }}"
+      datacenter:                   "{{ vcenter_dc }}"
+      vm_id:                        "{{ vm_name }}"
+      folder:                       "{{ vm_folder }}"
+      vm_username:                  "{{ robops_user }}"
+      vm_password:                  "{{ robops_pass }}"
+      vm_shell:                     "{{ vmware_vm_shell_stdout_bin }}"
+      vm_shell_args:                "{{ vmware_vm_shell_stdout_arg | trim | default() }} >{{ vmware_vm_shell_stdout_tmp }}"
+
+
+
+  - name: vSphere | Fetch stdout file
+    delegate_to:                    localhost
+    changed_when:                   false
+    register:                       info
+    when:                           vm_net_ip is not defined or vm_net_ip != controlhost_ip # DEV: don't fetch from self, paths are identical
+    vmware_guest_file_operation:    # DOC https://docs.ansible.com/ansible/latest/modules/vmware_guest_file_operation_module.html
+      validate_certs:               false
+      username:                     "{{ vcenter_user }}"
+      password:                     "{{ vcenter_pass }}"
+      hostname:                     "{{ vcenter_host }}"
+      datacenter:                   "{{ vcenter_dc }}"
+      vm_id:                        "{{ vm_name }}"
+      folder:                       "{{ vm_folder }}"
+      vm_username:                  "{{ robops_user }}"
+      vm_password:                  "{{ robops_pass }}"
+      fetch:
+        src:                        "{{ vmware_vm_shell_stdout_tmp }}"
+        dest:                       "{{ vmware_vm_shell_stdout_tmp }}"
+
+
+
+  - name: Facts   | Parse stdout YAML
+    when: vmware_vm_shell_stdout_yml | default(false) | bool == true
+    set_fact: # DEV Configurable output var receives YAML data
+      "{{ vmware_vm_shell_stdout_var }}": "{{ lookup('file', vmware_vm_shell_stdout_tmp) | from_yaml }}"
+
+  - name: Facts   | Parse stdout var
+    when: vmware_vm_shell_stdout_yml | default(false) | bool == false
+    set_fact: # DEV Configurable output var receives RAW data
+      "{{ vmware_vm_shell_stdout_var }}": "{{ lookup('file', vmware_vm_shell_stdout_tmp) }}"
+
+
+
+  - name: vSphere | Remove remote temporary stdout file
+    delegate_to:                    localhost
+    changed_when:                   false
+    register:                       info
+    vmware_vm_shell:                # DOC https://docs.ansible.com/ansible/latest/modules/vmware_vm_shell_module.html
+      wait_for_process:             true
+      validate_certs:               false
+      username:                     "{{ vcenter_user }}"
+      password:                     "{{ vcenter_pass }}"
+      hostname:                     "{{ vcenter_host }}"
+      datacenter:                   "{{ vcenter_dc }}"
+      vm_id:                        "{{ vm_name }}"
+      folder:                       "{{ vm_folder }}"
+      vm_username:                  "{{ robops_user }}"
+      vm_password:                  "{{ robops_pass }}"
+      vm_shell:                     /bin/rm
+      vm_shell_args:                "-f -v {{ vmware_vm_shell_stdout_tmp }}"
+
+
+
+  - name: Local   | Remove local temporary stdout file
+    changed_when:                   false
+    when:                           vm_net_ip is not defined or vm_net_ip != controlhost_ip # DEV: don't rm from self, already done over API
+    local_action:
+      module:                       file  # DOC https://docs.ansible.com/ansible/latest/modules/file_module.html
+      path:                         "{{ vmware_vm_shell_stdout_tmp }}"
+      state:                        absent
+
+
+  - name: "Facts   | Register {{ vmware_vm_shell_stdout_reg }}"
+    when:
+    - vmware_vm_shell_stdout_reg is not none
+    - vmware_vm_shell_stdout_reg | trim != ''
+    set_fact:
+      "{{ vmware_vm_shell_stdout_reg }}": "{{ vmware_vm_shell_stdout_info }}"

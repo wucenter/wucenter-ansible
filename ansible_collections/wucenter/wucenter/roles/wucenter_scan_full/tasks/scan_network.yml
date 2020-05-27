@@ -1,0 +1,61 @@
+---
+
+# DOC: Appends `vm_net_ns{1,2}` to `scan_vm`
+
+
+# DEV: vSphere is not aware of systemd-resolve, check info.instance.guest.ipStack[0].dnsConfig.ipAddress[0]
+- name: "Role    | {{ vmware_vm_shell_stdout_lab }}"
+  when:
+  - scan_info.instance.config.guestId == 'ubuntu64Guest'
+  - scan_info.instance.guest.ipStack
+  - scan_info.instance.guest.ipStack[0].dnsConfig.ipAddress | length == 1
+  - scan_info.instance.guest.ipStack[0].dnsConfig.ipAddress[0] == '127.0.0.53'
+  changed_when:                 false
+  failed_when:                  |
+    (     resolved.exit_code is not defined )
+    or
+    (     resolved.exit_code is defined
+      and resolved.exit_code != 0
+    )
+  import_role:
+    name:                       vmware_vm_shell_stdout
+  vars:
+    vmware_vm_shell_stdout_reg: resolved
+    vmware_vm_shell_stdout_lab: DNS info from systemd-resolve
+    vmware_vm_shell_stdout_cro: true
+    vmware_vm_shell_stdout_yml: true
+    vmware_vm_shell_stdout_var: temp_vm
+    vmware_vm_shell_stdout_bin: /bin/bash
+    vmware_vm_shell_stdout_arg: |
+      -c "/usr/bin/systemd-resolve --status eth0 | awk -v l1=vm_net_ns1: -v l2=vm_net_ns2: 'm==1{print l2,\$1 ; m=0} /^[ ]*DNS Servers:/{print l1,\$3; m=1}'"
+
+
+
+- name: Facts   | DNS info from Guest ipStack
+  when:
+  - resolved is not defined or resolved.skipped is defined
+  - scan_info.instance.config.guestId == 'ubuntu64Guest'
+  - scan_info.instance.guest.ipStack
+  - scan_info.instance.guest.ipStack[0].dnsConfig.ipAddress | length > 0
+  set_fact:
+    temp_vm:
+      vm_net_ns1:               "{{ scan_info.instance.guest.ipStack[0].dnsConfig.ipAddress[0] }}"
+      vm_net_ns2:               "{{ scan_info.instance.guest.ipStack[0].dnsConfig.ipAddress[1] | default('ERROR') }}"
+
+
+
+- name: Facts   | Merge DNS info 1/2
+  when:
+  - temp_vm.vm_net_ns1 is not defined or temp_vm.vm_net_ns2 is not defined
+  set_fact:
+    scan_vm:                    "{{ scan_vm | combine({'vm_net_ns1': 'ERROR', 'vm_net_ns2': 'ERROR'}) }}"
+
+
+
+- name: Facts   | Merge DNS info 2/2
+  when:
+  - temp_vm.vm_net_ns1 is defined
+  - temp_vm.vm_net_ns2 is defined
+  set_fact:
+    scan_vm:                    "{{ scan_vm | combine(temp_vm) }}"
+    temp_vm:

@@ -1,0 +1,42 @@
+---
+
+# DOC: Namespace collisions
+
+# TODO vm_rename can collide with vm_name
+# TODO vm_rename can collide with vm_rename
+
+
+
+# TODO by tuple (vm_net_ip, vm_network) ?
+- name: Checks  | Inventory IP collision detection
+  run_once:                     true
+  delegate_to:                  localhost
+  with_dict:                    "{{ unique_ips | from_yaml }}"
+  loop_control:
+    loop_var:                   ip_item
+  when:                         ip_item.value | length >1
+  vars:
+    unique_ips: |
+      {% for vm_ip, vm_spec in ( play_hosts | map('extract', hostvars) | list | groupby('vm_net_ip') ) %}
+      {{ vm_ip }}: {{ vm_spec | map(attribute='vm_name') | list }}
+      {% endfor %}
+  fail:
+    msg: "IP {{ ip_item.key }} is assigned to multiple hosts:\n{{ ip_item.value | to_nice_yaml }}"
+
+
+
+# TODO by tuple (vm_hostname, vm_folder) ?
+- name: Checks  | Inventory VM name collision detection
+  run_once:                     true
+  delegate_to:                  localhost
+  with_dict:                    "{{ unique_hostnames | from_yaml }}"
+  loop_control:
+    loop_var:                   ip_item
+  when:                         ip_item.value | length >1
+  vars:
+    unique_hostnames: |
+      {% for vm_hostname, vm_spec in ( play_hosts | map('extract', hostvars) | list | groupby('vm_name') ) %}
+      {{ vm_hostname }}: {{ vm_spec | map(attribute='vm_net_ip') | list }}
+      {% endfor %}
+  fail:
+    msg: "Hostname {{ ip_item.key }} is assigned to multiple hosts:\n{{ ip_item.value | to_nice_yaml }}"

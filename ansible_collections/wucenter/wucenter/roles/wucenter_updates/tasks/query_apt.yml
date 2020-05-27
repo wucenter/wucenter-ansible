@@ -1,0 +1,23 @@
+---
+
+- name: "vSphere | {{ vmware_vm_shell_stdout_lab }}"
+  vars:
+    vmware_vm_shell_stdout_lab: Query APT updates
+    vmware_vm_shell_stdout_var: vm_updates
+    vmware_vm_shell_stdout_bin: /bin/bash
+    vmware_vm_shell_stdout_yml: true
+    vmware_vm_shell_stdout_cro: true
+    vmware_vm_shell_stdout_arg: |
+      -c "
+        sudo apt-get --simulate --no-download \
+          dist-upgrade --no-install-recommends --verbose-versions --fix-missing \
+      | awk -v cmd='apt-mark showhold' \
+          -v tpl_upd='- name: %s\n  real: %s\n  repo: %s\n%s\n' \
+          -v tpl_pin='  pin: true' \
+          'BEGIN { while( (cmd | getline pkg) >0) held[pkg]=1 }
+          /=>/   { pin=empty ; if (held[\$1]) pin=tpl_pin ; printf(tpl_upd, \$1, substr(\$2,2), substr(\$4,1,length(\$4)-1), pin) }'"
+  include_role:
+    name:                       vmware_vm_shell_stdout
+
+- debug:
+    msg: "{{ vm_updates }}"

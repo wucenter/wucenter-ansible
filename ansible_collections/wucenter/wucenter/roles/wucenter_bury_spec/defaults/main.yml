@@ -1,0 +1,21 @@
+---
+
+bury_spec_attrs:
+- vm_name
+- vm_folder
+- vm_cluster
+- vm_datastore
+- vm_network
+- vm_power
+- vm_cpu
+- vm_hotplug
+- vm_ram
+- vm_ram_reserved
+- vm_disk
+- vm_swap
+- vm_net_ip
+- vm_net_nm
+- vm_net_gw
+- vm_net_ns1
+- vm_net_ns2
+- vm_net_sd

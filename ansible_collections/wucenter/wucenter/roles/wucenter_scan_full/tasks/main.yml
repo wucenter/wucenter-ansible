@@ -1,0 +1,40 @@
+---
+
+- name: Meta    | Ignore absent VMs
+  when:
+  - state is defined
+  - state == 'absent'
+  - scan_native.failed is defined
+  - scan_native.failed
+  meta: end_host
+
+
+
+- block:
+
+
+  - import_tasks: check_vars.yml
+
+  - import_tasks: scan_full.yml
+
+
+  when:
+  - ( scan_native.failed is not defined ) or not scan_native.failed
+
+
+  rescue:
+  - include_role:
+      name: wucenter_bury_fail
+  - fail:
+      msg: "Unscannable VM"
+
+
+
+- name: Role    | Bury VM specs
+  when:
+  - scan_bury.skipped is defined
+  - scan_bury.skipped
+  vars:
+    bury_spec_dict: scan_vm
+  include_role:
+    name: wucenter_bury_spec

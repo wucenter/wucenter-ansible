@@ -1,0 +1,58 @@
+---
+
+- name: vSphere | Bury VM specs 1/2
+  when:
+  - bury_spec_dict is defined
+  - bury_spec_dict | length >0
+  delegate_to:                  localhost
+  register:                     bury_spec_info
+  changed_when:                 false
+  vars:
+    bury_spec_data:             "{{ lookup('vars', bury_spec_dict) }}"
+    bury_spec:                  |
+      {% for k in bury_spec_attrs %}
+      - name:                   {{ k }}
+        value:                  {{ ( ("'true'" if  bury_spec_data[k] else "'false'" ) if (bury_spec_data[k] | type_debug == 'bool') else ( bury_spec_data[k] | to_yaml | regex_replace('\.\.\.$', '') | trim | string ) ) if k in bury_spec_data else '' }}
+      {% endfor %}
+      - name:                   vm_auto
+        value:                  "{{ ( vm_auto | to_yaml | regex_replace('\.\.\.$', '') | trim  ) if ((vm_auto is sequence) and (vm_auto is not string) and (vm_auto is not mapping)) else ' []' }}"
+  # DEV: ' []' Note leading whitespace to WORKAROUND pyVmomi unserializing YAML-serialized empty dicts/lists
+  # WORKAROUND Ansible BOOL type madness
+  vmware_guest_custom_attributes:  # DOC https://docs.ansible.com/ansible/latest/modules/vmware_guest_custom_attributes_module.html
+    validate_certs:             false
+    username:                   "{{ vcenter_user }}"
+    password:                   "{{ vcenter_pass }}"
+    hostname:                   "{{ vcenter_host }}"
+    datacenter:                 "{{ vcenter_dc }}"
+    name:                       "{{ vm_name }}"
+    folder:                     "{{ vm_folder }}"
+    attributes:                 "{{ bury_spec | from_yaml }}"
+    state:                      present
+
+
+
+- name: vSphere | Bury VM specs 2/2
+  when:
+  - (bury_spec_dict is not defined) or ( bury_spec_dict | length == 0 )
+  delegate_to:                  localhost
+  register:                     bury_spec_info
+  changed_when:                 false
+  vars:
+    bury_spec:                  |
+      {% for k in bury_spec_attrs %}
+      - name:                   {{ k }}
+        value:                  "{{ ( vars[k] | to_yaml | regex_replace('\.\.\.$', '') | trim  ) if k in vars else '' }}"
+      {% endfor %}
+      - name:                   vm_auto
+        value:                  "{{ ( vm_auto | to_yaml | regex_replace('\.\.\.$', '') | trim  ) if ((vm_auto is sequence) and (vm_auto is not string) and (vm_auto is not mapping)) else ' []' }}"
+  # DEV: ' []' Note leading whitespace to WORKAROUND pyVmomi unserializing YAML-serialized empty dicts/lists
+  vmware_guest_custom_attributes:  # DOC https://docs.ansible.com/ansible/latest/modules/vmware_guest_custom_attributes_module.html
+    validate_certs:             false
+    username:                   "{{ vcenter_user }}"
+    password:                   "{{ vcenter_pass }}"
+    hostname:                   "{{ vcenter_host }}"
+    datacenter:                 "{{ vcenter_dc }}"
+    name:                       "{{ vm_name }}"
+    folder:                     "{{ vm_folder }}"
+    attributes:                 "{{ bury_spec | from_yaml }}"
+    state:                      present

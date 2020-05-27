@@ -1,0 +1,222 @@
+---
+
+- name: "vSphere | Create Ops group"
+  delegate_to:                  localhost
+  register:                     addgroup
+  changed_when:                 addgroup.exit_code is defined and addgroup.exit_code == 125
+  failed_when:                  |
+    (     addgroup.exit_code is not defined )
+    or
+    (     addgroup.exit_code != 125
+      and addgroup.exit_code != 1
+    )
+  vmware_vm_shell:              # DOC https://docs.ansible.com/ansible/latest/modules/vmware_vm_shell_module.html
+    wait_for_process:           true
+    validate_certs:             false
+    username:                   "{{ vcenter_user }}"
+    password:                   "{{ vcenter_pass }}"
+    hostname:                   "{{ vcenter_host }}"
+    datacenter:                 "{{ vcenter_dc }}"
+    vm_id:                      "{{ vm_name }}"
+    folder:                     "{{ vm_folder }}"
+    vm_username:                "{{ robops_user }}"
+    vm_password:                "{{ robops_pass }}"
+    vm_shell:                   /bin/bash
+    vm_shell_args:              |
+      -c 'sudo addgroup ops && exit 125'
+
+
+
+- name: "vSphere | Set Ops group sudoers perms"
+  vars:
+    vmware_vm_textfile_path: /etc/sudoers.d/ops
+    vmware_vm_textfile_data: |
+      Cmnd_Alias OPS_SAFE_ACTIONS = /usr/bin/apt-get update, /usr/bin/apt-get upgrade
+
+      %ops ALL = (ALL) ALL
+      %ops ALL = NOPASSWD: OPS_SAFE_ACTIONS
+  import_role:
+    name:                       vmware_vm_textfile
+
+
+
+- name: "vSphere | Create Ops users"
+  delegate_to:                  localhost
+  with_items:                   "{{ users }}"
+  loop_control:
+    loop_var:                   user_item
+  register:                     adduser
+  changed_when:                 adduser.exit_code is defined and adduser.exit_code == 125
+  failed_when:                  |
+    (     adduser.exit_code is not defined )
+    or
+    (     adduser.exit_code != 125
+      and adduser.exit_code != 1
+    )
+  when:
+  - users[user_item].user_state is not defined or ( users[user_item].user_state != 'absent' )
+  - users[user_item].user_tags | default({}) | intersect(['ops'])
+  vmware_vm_shell:              # DOC https://docs.ansible.com/ansible/latest/modules/vmware_vm_shell_module.html
+    wait_for_process:           true
+    validate_certs:             false
+    username:                   "{{ vcenter_user }}"
+    password:                   "{{ vcenter_pass }}"
+    hostname:                   "{{ vcenter_host }}"
+    datacenter:                 "{{ vcenter_dc }}"
+    vm_id:                      "{{ vm_name }}"
+    folder:                     "{{ vm_folder }}"
+    vm_username:                "{{ robops_user }}"
+    vm_password:                "{{ robops_pass }}"
+    vm_shell:                   /bin/bash
+    vm_shell_args:              >
+      -c 'sudo adduser --ingroup ops --disabled-password
+      --shell {{ users[user_item].user_shell | default('/bin/bash') }}
+      --gecos "{{ users[user_item].user_name }}"
+      {{ user_item }}
+      ; ret=$?
+      ; sudo -u {{ user_item }} mkdir -p /home/{{ user_item }}/.ssh
+      ; sudo -u {{ user_item }} touch /home/{{ user_item }}/.ssh/authorized_keys
+      ; [[ $ret -eq 0 ]] && exit 125'
+
+
+
+- name: "vSphere | Create RobOps group"
+  delegate_to:                  localhost
+  register:                     addgroup
+  changed_when:                 addgroup.exit_code is defined and addgroup.exit_code == 125
+  failed_when:                  |
+    (     addgroup.exit_code is not defined )
+    or
+    (     addgroup.exit_code != 125
+      and addgroup.exit_code != 1
+    )
+  vmware_vm_shell:              # DOC https://docs.ansible.com/ansible/latest/modules/vmware_vm_shell_module.html
+    wait_for_process:           true
+    validate_certs:             false
+    username:                   "{{ vcenter_user }}"
+    password:                   "{{ vcenter_pass }}"
+    hostname:                   "{{ vcenter_host }}"
+    datacenter:                 "{{ vcenter_dc }}"
+    vm_id:                      "{{ vm_name }}"
+    folder:                     "{{ vm_folder }}"
+    vm_username:                "{{ robops_user }}"
+    vm_password:                "{{ robops_pass }}"
+    vm_shell:                   /bin/bash
+    vm_shell_args:              |
+      -c 'sudo addgroup robops && exit 125'
+
+
+
+- name: "vSphere | Set Robops groups sudoers perms"
+  vars:
+    vmware_vm_textfile_path:    /etc/sudoers.d/robops
+    vmware_vm_textfile_data:    |
+      %robops ALL = (ALL) NOPASSWD: ALL
+  import_role:
+    name:                       vmware_vm_textfile
+
+
+
+- name: "vSphere | Create RobOps users"
+  delegate_to:                  localhost
+  with_items:                   "{{ users }}"
+  loop_control:
+    loop_var:                   user_item
+  register:                     adduser
+  changed_when:                 adduser.exit_code is defined and adduser.exit_code == 125
+  failed_when:                  |
+    (     adduser.exit_code is not defined )
+    or
+    (     adduser.exit_code != 125
+      and adduser.exit_code != 1
+    )
+  when:
+  - users[user_item].user_state is not defined or ( users[user_item].user_state != 'absent' )
+  - users[user_item].user_tags | default({}) | intersect(['robops'])
+  vmware_vm_shell:              # DOC https://docs.ansible.com/ansible/latest/modules/vmware_vm_shell_module.html
+    wait_for_process:           true
+    validate_certs:             false
+    username:                   "{{ vcenter_user }}"
+    password:                   "{{ vcenter_pass }}"
+    hostname:                   "{{ vcenter_host }}"
+    datacenter:                 "{{ vcenter_dc }}"
+    vm_id:                      "{{ vm_name }}"
+    folder:                     "{{ vm_folder }}"
+    vm_username:                "{{ robops_user }}"
+    vm_password:                "{{ robops_pass }}"
+    vm_shell:                   /bin/bash
+    vm_shell_args:              >
+      -c 'sudo adduser --ingroup robops --disabled-password
+      --shell {{ users[user_item].user_shell | default('/bin/bash') }}
+      --gecos "{{ users[user_item].user_name }}"
+      {{ user_item }}
+      ; ret=$?
+      ; sudo -u {{ user_item }} mkdir -p /home/{{ user_item }}/.ssh
+      ; sudo -u {{ user_item }} touch /home/{{ user_item }}/.ssh/authorized_keys
+      ; [[ $ret -eq 0 ]] && exit 125'
+
+
+
+- name: "vSphere | Set Rob+Ops passwords"
+  delegate_to:                  localhost
+  with_items:                   "{{ users }}"
+  loop_control:
+    loop_var:                   user_item
+    pause:                      1
+  register:                     shadow
+  changed_when:                 shadow.exit_code is defined and shadow.exit_code == 125
+  failed_when:                    |
+    (   shadow.exit_code is not defined )
+    or
+    (   shadow.exit_code != 125
+    and shadow.exit_code != 0
+    )
+  when:
+  - users[user_item].user_state is not defined or ( users[user_item].user_state != 'absent' )
+  - users[user_item].user_tags | default({}) | intersect(['ops', 'robops'])
+  - users[user_item].user_hash | length >0
+  vmware_vm_shell:              # DOC https://docs.ansible.com/ansible/latest/modules/vmware_vm_shell_module.html
+    wait_for_process:           true
+    validate_certs:             false
+    username:                   "{{ vcenter_user }}"
+    password:                   "{{ vcenter_pass }}"
+    hostname:                   "{{ vcenter_host }}"
+    datacenter:                 "{{ vcenter_dc }}"
+    vm_id:                      "{{ vm_name }}"
+    folder:                     "{{ vm_folder }}"
+    vm_username:                "{{ robops_user }}"
+    vm_password:                "{{ robops_pass }}"
+    vm_shell:                   /bin/bash
+    vm_shell_args:              |
+      -c "sudo awk -v u={{ user_item }} -v s=: -F: \
+            'BEGIN{OFS=s ; getline h < \"-\" } \$1==u{if (\$2!=h) r=1; \$2=h ; \$0=\$0} {print} END{if (r) exit 125 ; else exit 0}' \
+            /etc/shadow >/tmp/shadow
+      ret=\$?
+      [[ \$ret -eq 125 ]] && sudo tee </tmp/shadow /etc/shadow
+      rm /tmp/shadow
+      exit \$ret" <<'EOF_8e87v3.4r97f86'
+      {{ users[user_item].user_hash }}
+      EOF_8e87v3.4r97f86
+
+
+
+- name: "vSphere | Deploy Ops/Robops SSH keys"
+  with_subelements:
+  - "{{ users | dict2items }}"
+  - value.user_keys
+  - skip_missing:               true
+  loop_control:
+    loop_var:                   user_key_item
+  when:
+  - ( user_key_item.0.value.user_state is not defined ) or ( user_key_item.0.value.user_state != 'absent' )
+  - ( user_key_item.1.state is not defined ) or ( user_key_item.1.state != 'absent' )  # TODO FIX
+  - user_key_item.0.value.user_tags | default({}) | intersect(['ops', 'robops'])
+  - user_key_item.1.ssh_rsa is defined
+  - user_key_item.1.ssh_rsa | length >0
+  # DEBUG:
+  #   msg: "{{ user_key_item.0.key }}/{{ user_key_item.0.value.user_state | default }}: {{ user_key_item.1.ssh_rsa }}{{ user_key_item.1.status | default }}"
+  vars:
+    vmware_vm_lineinfile_path:  "/home/{{ user_key_item.0.key }}/.ssh/authorized_keys"
+    vmware_vm_lineinfile_data:  "ssh-rsa {{ user_key_item.1.ssh_rsa }} {{ user_key_item.1.comment | default }}"
+  include_role:
+    name:                       vmware_vm_lineinfile

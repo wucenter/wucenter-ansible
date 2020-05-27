@@ -1,0 +1,44 @@
+---
+
+- name: Checks  | Supported user_state
+  when:
+  - ( user.value.user_state is defined )
+  - ( user.value.user_state | trim != '')
+  - ( user.value.user_state != 'absent' )
+  fail:
+    msg: "Invalid user_state for user '{{ user.key }}': '{{ user.value.user_state }}'"
+
+
+- name: Checks  | Valid user_tags list
+  when:
+  - user.value.user_tags is defined
+  - (user.value.user_tags is string) or (user.value.user_tags is mapping) or (user.value.user_tags is not sequence)
+  fail:
+    msg: "Invalid user_tags for user '{{ user.key }}', list required"
+
+- block:
+
+
+  - name: Checks  | Ops and Robops must have user_hash
+    when:
+    - user.value.user_tags | default({}) | intersect(['ops', 'robops'])
+    - (user.value.user_hash is not defined) or (user.value.user_hash | trim == '')
+    fail:
+      msg: "Missing user_hash for Rob/Ops user '{{ user.key }}'"
+
+  - name: Checks  | Ops must have valid user_keys
+    when:
+    - user.value.user_tags | default({}) | intersect(['ops'])
+    - user.value.user_keys is not defined
+    - (user.value.user_keys is string) or (user.value.user_keys is mapping) or (user.value.user_keys is not sequence)
+    - user.value.user_keys | default([]) | selectattr('ssh_rsa', 'ne', '') | selectattr('state', 'ne', 'absent') | list | length >1
+    fail:
+      msg: "Missing valid user_keys[].ssh_rsa for Ops user '{{ user.key }}'"
+
+  # TODO check user_shell in supported list
+  # TODO check user_mail format
+  # TODO enforce user_name
+
+
+  when:
+  - ( user.value.user_state is not defined ) or ( user.value.user_state != 'absent' )

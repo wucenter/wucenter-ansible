@@ -1,0 +1,10 @@
+---
+
+vm_defaults:
+  vm_folder:                  /
+  vm_auto:                    []
+  vm_roles:                   []
+  vm_vars:                    {}
+  vm_ram_reserved:            true
+  vm_hotplug:                 true
+  vm_power:                   true

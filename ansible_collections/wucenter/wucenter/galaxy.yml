@@ -1,0 +1,18 @@
+# DOC https://docs.ansible.com/ansible/latest/dev_guide/collections_galaxy_meta.html#collections-galaxy-meta
+---
+namespace:      wucenter
+name:           wucenter
+version:        0.0.1
+readme:         docs/README.md
+authors:        Elias <wucenter@elias.la>
+description:    VMware vCenter Ubuntu VMs
+license:        [WTFPL, MIT]
+tags:           [vmware, vcenter, ubuntu, bionic, gitops, iac]
+documentation:  https://github.com/wucenter/wucenter
+repository:     https://github.com/wucenter/wucenter
+homepage:       https://github.com/wucenter/wucenter
+issues:         https://github.com/wucenter/wucenter/issues
+dependencies:
+  ansible.netcommon:  "*"
+  community.general:  "*"
+  community.vmware:   "*"

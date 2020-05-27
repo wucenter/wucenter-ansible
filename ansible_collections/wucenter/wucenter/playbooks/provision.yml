@@ -1,0 +1,21 @@
+#!./wucenter_player.sh --vault --no-deps --no-role
+---
+
+- import_playbook: init.yml
+
+- name: Provision vCenter VMs
+  hosts:                        vms
+  gather_facts:                 false
+  collections:
+  - wucenter.wucenter
+  vars_files:
+  - "{{ wucenter_basedir }}credentials/vcenter.yml"
+  - "{{ wucenter_basedir }}credentials/template.yml"
+  - "{{ wucenter_basedir }}inventory/users.yml"
+  vars:
+    ansible_play:               provision
+    robops_user:                "{{ template_user }}"
+    robops_pass:                "{{ template_pass }}"
+  roles:
+  - wucenter_scan_mini
+  - wucenter_provision

@@ -1,0 +1,12 @@
+---
+
+- name: "vSphere | Align datastore"
+  delegate_to:                  localhost
+  register:                     info
+  vmware_vmotion: # https://docs.ansible.com/ansible/latest/modules/vmware_vmotion_module.html
+    validate_certs:             false
+    username:                   "{{ vcenter_user }}"
+    password:                   "{{ vcenter_pass }}"
+    hostname:                   "{{ vcenter_host }}"
+    vm_name:                    "{{ vm_name }}"
+    destination_datastore:      "{{ vm_datastore }}"

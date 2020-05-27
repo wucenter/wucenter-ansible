@@ -1,0 +1,65 @@
+---
+
+# DOC: Gather informations from vCenter
+
+- name: vCenter | Pull folders
+  delegate_to:                  localhost
+  register:                     scan_folders
+  vmware_folder_info:           # DOC https://docs.ansible.com/ansible/latest/modules/vmware_folder_info_module.html
+    validate_certs:             false
+    username:                   "{{ vcenter_user }}"
+    password:                   "{{ vcenter_pass }}"
+    hostname:                   "{{ vcenter_host }}"
+    datacenter:                 "{{ vcenter_dc }}"
+
+- name: Tasks   | Recurse folders
+  vars:
+    vcenter_info_folders_data: "{{ scan_folders.folder_info.vmFolders }}"
+  include_tasks:                recurse_folders.yml
+
+
+
+- name: vCenter | Pull datastores
+  delegate_to:                  localhost
+  register:                     scan_datastores
+  vmware_datastore_info:        # DOC https://docs.ansible.com/ansible/latest/modules/vmware_datastore_info_module.html
+    validate_certs:             false
+    hostname:                   '{{ vcenter_host }}'
+    username:                   '{{ vcenter_user }}'
+    password:                   '{{ vcenter_pass }}'
+    datacenter:                 '{{ vcenter_dc }}'
+    # gather_nfs_mount_info:      true
+    # gather_vmfs_mount_info:     true
+
+- name: Facts   | Parse datastores
+  set_fact:
+    vcenter_datastores:            "{{ scan_datastores.datastores | map(attribute='name') | list | sort | unique }}"
+
+
+
+- name: vCenter | Pull clusters
+  delegate_to:                  localhost
+  register:                     scan_clusters
+  vmware_cluster_info:          # DOC https://docs.ansible.com/ansible/latest/modules/vmware_cluster_info_module.html
+    validate_certs:             no
+    hostname:                   '{{ vcenter_host }}'
+    username:                   '{{ vcenter_user }}'
+    password:                   '{{ vcenter_pass }}'
+    datacenter:                 '{{ vcenter_dc }}'
+
+- name: Facts   | Parse clusters
+  set_fact:
+    vcenter_clusters:            "{{ scan_clusters.clusters.keys() | list | sort | unique }}"
+
+
+
+- name: Tasks   | Pull networks by cluster
+  with_items:                   '{{ vcenter_clusters }}'
+  vars:
+    vcenter_pull_networks_cluster: "{{ item }}"
+  include_tasks:                info_networks.yml
+
+
+
+# - name: Tasks   | Pull pools by cluster
+#   include_tasks:                info_pools.yml

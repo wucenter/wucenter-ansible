@@ -1,0 +1,71 @@
+---
+
+# Regular expressions
+
+regex_name:     '^[a-zA-Z0-9_.-]{1,32}$'          # DEV: max 32 bytes
+regex_folder:   '^(/[a-zA-Z0-9_.-]{1,32}){1,8}$'  # DEV: max 32 bytes per segment, max 8 segments
+regex_hostname: '^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$'
+
+
+
+# Attrs
+
+attrs_allowed:
+- vm_name
+- vm_folder
+- vm_cluster
+- vm_datastore
+- vm_network
+- vm_power
+- vm_hotplug
+- vm_ram_reserved
+- vm_ram
+- vm_cpu
+- vm_disk
+- vm_swap
+- vm_net_ip
+- vm_net_nm
+- vm_net_gw
+- vm_net_ns1
+- vm_net_ns2
+- vm_net_sd
+
+
+
+# Tags
+
+tags_allowed:
+- mytag
+- auto
+
+tags_auto:
+- auto/all
+
+- auto/manage
+- auto/provision
+- auto/decommission
+- auto/folder
+- auto/rename
+- auto/roles
+
+- auto/hw
+- auto/power
+- auto/cpu
+- auto/ram
+- auto/hwflags
+- auto/hotplug
+- auto/ram_reserved
+
+- auto/data
+- auto/datastore
+- auto/disks
+- auto/disk
+- auto/swap
+
+- auto/net
+- auto/network
+- auto/netconf
+- auto/ssh
+- auto/hostname
+
+# - TODO auto/ipam

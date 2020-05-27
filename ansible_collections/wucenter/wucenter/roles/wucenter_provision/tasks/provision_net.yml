@@ -1,0 +1,30 @@
+---
+
+# DEV DNS not configured by provision_vm task
+
+- name: "vSphere | Netplan IP configuration: /etc/netplan/99-netcfg-vmware.yaml"
+  delegate_to:                    localhost
+  register:                       info
+  changed_when:                   info.exit_code is defined and info.exit_code == 0
+  failed_when:                  |
+    (     info.exit_code is not defined )
+    or
+    (     info.exit_code is defined
+      and info.exit_code != 0
+    )
+  vmware_vm_shell: # https://docs.ansible.com/ansible/latest/modules/vmware_vm_shell_module.html
+    validate_certs:               false
+    wait_for_process:             true
+    username:                     "{{ vcenter_user }}"
+    password:                     "{{ vcenter_pass }}"
+    hostname:                     "{{ vcenter_host }}"
+    datacenter:                   "{{ vcenter_dc }}"
+    vm_id:                        "{{ vm_name }}"
+    folder:                       "{{ vm_folder }}"
+    vm_username:                  "{{ robops_user }}"
+    vm_password:                  "{{ robops_pass }}"
+    vm_shell:                     /bin/bash
+    vm_shell_args:                |
+      <<'EOF_8e87v3.4r97f86' -c "sudo tee /etc/netplan/99-netcfg-vmware.yaml && sudo netplan apply"
+      {{ lookup('template', 'netplan.j2') }}
+      EOF_8e87v3.4r97f86

@@ -1,0 +1,36 @@
+---
+
+- import_tasks: lint_inventory_types.yml
+- import_tasks: lint_inventory_tags.yml
+- import_tasks: lint_inventory_ns.yml
+
+
+
+- name: Checks  | vm_rename
+  when:
+  - vm_rename is defined
+  - ( vm_rename == vm_name ) or ( vm_rename | trim == '' )
+  fail:
+    msg: "Invalid vm_rename value '{{ vm_rename }}' for host '{{ vm_name }}'"
+
+
+
+# - name: Checks  | state
+#   vars:
+#     state_supported_values:
+#     - absent
+#   when:
+#   - state is defined
+#   - state not in state_supported_values
+#   fail:
+#     msg: "Invalid state value '{{ state }}' for host '{{ vm_name }}'"
+
+
+
+- name: Checks  | vm_rename + state
+  when:
+  - state is defined
+  - state == 'absent'
+  - vm_rename is defined
+  fail:
+    msg: "Unsupported operation: vm_rename + absent for host '{{ vm_name }}' "

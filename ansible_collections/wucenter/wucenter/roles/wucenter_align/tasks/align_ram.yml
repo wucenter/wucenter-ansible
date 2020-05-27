@@ -1,0 +1,18 @@
+---
+
+- name: "vSphere | Align Memory"
+  delegate_to:                  localhost
+  register:                     info
+  vmware_guest:                 # DOC https://docs.ansible.com/ansible/latest/modules/vmware_guest_module.html
+    force:                      true
+    validate_certs:             false
+    username:                   "{{ vcenter_user }}"
+    password:                   "{{ vcenter_pass }}"
+    hostname:                   "{{ vcenter_host }}"
+    datacenter:                 "{{ vcenter_dc }}"
+    name:                       "{{ vm_name }}"
+    folder:                     "{{ vm_folder }}"
+    state:                      present
+    hardware:
+      memory_mb:                "{{ vm_ram | int }}"
+      mem_reservation:          "{{ vm_ram | int }}"

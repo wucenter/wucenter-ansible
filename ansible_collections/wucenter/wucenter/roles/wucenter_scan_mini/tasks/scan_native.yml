@@ -1,0 +1,83 @@
+---
+
+# DOC: Creates `scan_native`, `scan_vm`, `cache_vm`
+
+- name: vSphere | Querying VMs, native format
+  delegate_to:                  localhost
+  register:                     scan_native
+  ignore_errors:                true
+  vmware_guest_info:            # DOC https://docs.ansible.com/ansible/latest/modules/vmware_guest_info_module.html
+    validate_certs:             false
+    username:                   "{{ vcenter_user }}"
+    password:                   "{{ vcenter_pass }}"
+    hostname:                   "{{ vcenter_host }}"
+    datacenter:                 "{{ vcenter_dc }}"
+    name:                       "{{ vm_name }}"
+
+
+
+- name: Tasks   | Rescan renamed VMs
+  when:
+  - scan_native.failed
+  - vm_rename is defined
+  - vm_rename | trim != ''
+  - vm_rename != vm_name
+  include_tasks: scan_renamed.yml
+
+
+
+- name: Checks  | Inconsistent VM Guest type
+  when:
+  - not scan_native.failed
+  - scan_native.instance.hw_guest_id != 'ubuntu64Guest'
+  fail:
+    msg: "Inconsistent VM Guest type: {{ scan_native.instance.hw_guest_id }}"
+
+
+
+- name: "Facts   | Parse native format: real"
+  when:                         scan_native.instance is defined
+  set_fact:
+    scan_vm:
+      vm_name:                  "{{ scan_native.instance.hw_name }}"
+      vm_network:               "{{ scan_native.instance.hw_eth0.summary }}"  # DEV: Available when powered-off ONLY in native format
+      vm_power:                 "{{ true if scan_native.instance.hw_power_status == 'poweredOn' else false }}"
+      vm_ram:                   "{{ scan_native.instance.hw_memtotal_mb | int }}"
+      vm_cpu:                   "{{ scan_native.instance.hw_processor_count | int }}"
+      vm_datastore:             "{{ scan_native.instance.hw_datastores[0] }}"
+      vm_cluster:               "{{ scan_native.instance.hw_cluster }}"
+      vm_folder:                "{{ scan_native.instance.hw_folder | regex_replace('^/'+vcenter_dc+'/vm', '') | default('/', true) }}"
+      # vm_host:                  "{{ scan_native.instance.hw_esxi_host }}"
+
+
+
+- name: "Facts   | Parse native format: bury"
+  when:                         scan_native.instance is defined
+  set_fact:
+    cache_vm:
+      ansible_date:             "{{ scan_native.instance.customvalues.ansible_date            if 'ansible_date'     in scan_native.instance.customvalues else '' }}"
+      ansible_host:             "{{ scan_native.instance.customvalues.ansible_host            if 'ansible_host'     in scan_native.instance.customvalues else '' }}"
+      ansible_user:             "{{ scan_native.instance.customvalues.ansible_user            if 'ansible_user'     in scan_native.instance.customvalues else '' }}"
+      ansible_play:             "{{ scan_native.instance.customvalues.ansible_play            if 'ansible_play'     in scan_native.instance.customvalues else '' }}"
+      ansible_fail:             "{{ scan_native.instance.customvalues.ansible_fail            if 'ansible_fail'     in scan_native.instance.customvalues else '' }}"
+      vm_cluster:               "{{ scan_native.instance.customvalues.vm_cluster              if 'vm_cluster'       in scan_native.instance.customvalues else '' }}"
+      vm_cpu:                   "{{ scan_native.instance.customvalues.vm_cpu | int            if 'vm_cpu'           in scan_native.instance.customvalues else '' }}"
+      vm_datastore:             "{{ scan_native.instance.customvalues.vm_datastore            if 'vm_datastore'     in scan_native.instance.customvalues else '' }}"
+      vm_disk:                  "{{ scan_native.instance.customvalues.vm_disk | int           if 'vm_disk'          in scan_native.instance.customvalues else '' }}"
+      vm_folder:                "{{ scan_native.instance.customvalues.vm_folder               if 'vm_folder'        in scan_native.instance.customvalues else '' }}"
+      vm_hotplug:               "{{ scan_native.instance.customvalues.vm_hotplug | bool       if 'vm_hotplug'       in scan_native.instance.customvalues else '' }}"
+      vm_name:                  "{{ scan_native.instance.customvalues.vm_name                 if 'vm_name'          in scan_native.instance.customvalues else '' }}"
+      vm_net_gw:                "{{ scan_native.instance.customvalues.vm_net_gw               if 'vm_net_gw'        in scan_native.instance.customvalues else '' }}"
+      vm_net_ip:                "{{ scan_native.instance.customvalues.vm_net_ip               if 'vm_net_ip'        in scan_native.instance.customvalues else '' }}"
+      vm_net_nm:                "{{ scan_native.instance.customvalues.vm_net_nm               if 'vm_net_nm'        in scan_native.instance.customvalues else '' }}"
+      vm_net_ns1:               "{{ scan_native.instance.customvalues.vm_net_ns1              if 'vm_net_ns1'       in scan_native.instance.customvalues else '' }}"
+      vm_net_ns2:               "{{ scan_native.instance.customvalues.vm_net_ns2              if 'vm_net_ns2'       in scan_native.instance.customvalues else '' }}"
+      vm_net_sd:                "{{ scan_native.instance.customvalues.vm_net_sd               if 'vm_net_sd'        in scan_native.instance.customvalues else '' }}"
+      vm_network:               "{{ scan_native.instance.customvalues.vm_network              if 'vm_network'       in scan_native.instance.customvalues else '' }}"
+      vm_power:                 "{{ scan_native.instance.customvalues.vm_power | bool         if 'vm_power'         in scan_native.instance.customvalues else '' }}"
+      vm_ram:                   "{{ scan_native.instance.customvalues.vm_ram | int            if 'vm_ram'           in scan_native.instance.customvalues else '' }}"
+      vm_ram_reserved:          "{{ scan_native.instance.customvalues.vm_ram_reserved | bool  if 'vm_ram_reserved'  in scan_native.instance.customvalues else '' }}"
+      vm_swap:                  "{{ scan_native.instance.customvalues.vm_swap | int           if 'vm_swap'          in scan_native.instance.customvalues else '' }}"
+      vm_auto:                  "{{ scan_native.instance.customvalues.vm_auto  | default('[]') | from_yaml if 'vm_auto'  in scan_native.instance.customvalues else [] }}"
+      vm_roles:                 "{{ scan_native.instance.customvalues.vm_roles | default('[]') | from_yaml if 'vm_roles' in scan_native.instance.customvalues else [] }}"
+      vm_vars:                  "{{ scan_native.instance.customvalues.vm_vars  | default('{}') | from_yaml if 'vm_vars'  in scan_native.instance.customvalues else {} }}"

@@ -1,0 +1,31 @@
+---
+
+- name: vCenter | Pull pools
+  delegate_to:                  localhost
+  register:                     scan_pools
+  vmware_resource_pool_info:    # DOC https://docs.ansible.com/ansible/latest/modules/vmware_resource_pool_info_module.html
+    validate_certs:             no
+    hostname:                   '{{ vcenter_host }}'
+    username:                   '{{ vcenter_user }}'
+    password:                   '{{ vcenter_pass }}'
+
+
+
+- name: Facts   | Parse pools by cluster 1/2
+  set_fact:
+    vcenter_pools_by_cluster: |
+      {% for g in scan_pools.resource_pool_info | groupby('owner') -%}
+      {{ g[0] }}: {{ g[1] | map(attribute='name') | map('from_yaml') | list | select('ne', 'Resources') | sort | unique  }}
+      {% endfor %}
+
+
+
+- name: Facts   | Parse pools by cluster 2/2
+  set_fact:
+    vcenter_pools_by_cluster: "{{ vcenter_pools_by_cluster | from_yaml }}"
+
+
+
+# - name: Facts   | Parse all pools
+#   set_fact:
+#     vcenter_pools:              "{{ scan_pools.resource_pool_info | map(attribute='name') | list | select('ne', 'Resources') | sort | unique }}"

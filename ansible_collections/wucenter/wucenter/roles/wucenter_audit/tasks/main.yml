@@ -1,0 +1,10 @@
+---
+
+- block:
+
+
+  - import_tasks: audit_vm.yml
+
+
+  when:
+  - ( state is not defined ) or ( state != 'absent' )

@@ -1,0 +1,19 @@
+#!./wucenter_player.sh --vault --no-deps --no-role
+---
+
+- import_playbook: init.yml
+
+- name: Align vCenter VMs
+  hosts:                          vms
+  gather_facts:                   false
+  collections:
+  - wucenter.wucenter
+  vars:
+    ansible_play:                 align
+  vars_files:
+  - "{{ wucenter_basedir }}credentials/vcenter.yml"
+  - "{{ wucenter_basedir }}credentials/robops.yml"
+  - "{{ wucenter_basedir }}inventory/users.yml"
+  roles:
+  - wucenter_scan_mini
+  - wucenter_align

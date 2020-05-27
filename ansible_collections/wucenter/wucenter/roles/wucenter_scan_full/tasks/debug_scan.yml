@@ -1,0 +1,29 @@
+---
+
+- name: "Local   | Column state view: Desired / Scanned"
+  vars:
+    vm_fqdn:      "{{ vm_rename if (vm_rename is defined and '.' in vm_rename) else ( vm_rename + '.' + vm_net_sd if (vm_rename is defined and vm_rename|length) else vm_name ) }}"
+    column_width: "32"
+    sym_ok:       "|"
+    sym_nok:      "-"  # "≠"
+    sym_err:      "X"
+  debug:
+    msg: |
+      vm_name:          {{ '%-32s' | format(vm_fqdn          |string)}} {{ sym_ok if vm_fqdn          == scan_vm.vm_name          else sym_nok }} {{ scan_vm.vm_name }}
+      vm_folder:        {{ '%-32s' | format(vm_folder        |string)}} {{ sym_ok if vm_folder        == scan_vm.vm_folder        else sym_nok }} {{ scan_vm.vm_folder }}
+      vm_cluster:       {{ '%-32s' | format(vm_cluster       |string)}} {{ sym_ok if vm_cluster       == scan_vm.vm_cluster       else sym_err }} {{ scan_vm.vm_cluster }}
+      vm_datastore:     {{ '%-32s' | format(vm_datastore     |string)}} {{ sym_ok if vm_datastore     == scan_vm.vm_datastore     else sym_nok }} {{ scan_vm.vm_datastore }}
+      vm_network:       {{ '%-32s' | format(vm_network       |string)}} {{ sym_ok if vm_network       == scan_vm.vm_network       else sym_nok }} {{ scan_vm.vm_network }}
+      vm_power:         {{ '%-32s' | format(vm_power         |string)}} {{ sym_ok if vm_power         == scan_vm.vm_power         else sym_nok }} {{ scan_vm.vm_power }}
+      vm_hotplug:       {{ '%-32s' | format(vm_hotplug       |string)}} {{ sym_ok if vm_hotplug       == scan_vm.vm_hotplug       else sym_nok }} {{ scan_vm.vm_hotplug }}
+      vm_ram_reserved:  {{ '%-32s' | format(vm_ram_reserved  |string)}} {{ sym_ok if vm_ram_reserved  == scan_vm.vm_ram_reserved  else sym_nok }} {{ scan_vm.vm_ram_reserved }}
+      vm_ram:           {{ '%-32s' | format(vm_ram           |string)}} {{ sym_ok if vm_ram  | int    == scan_vm.vm_ram  | int    else sym_nok }} {{ scan_vm.vm_ram }}
+      vm_cpu:           {{ '%-32s' | format(vm_cpu           |string)}} {{ sym_ok if vm_cpu  | int    == scan_vm.vm_cpu  | int    else sym_nok }} {{ scan_vm.vm_cpu }}
+      vm_disk:          {{ '%-32s' | format(vm_disk          |string)}} {{ sym_ok if vm_disk | int    == scan_vm.vm_disk | int    else sym_nok }} {{ scan_vm.vm_disk }}
+      vm_swap:          {{ '%-32s' | format(vm_swap          |string)}} {{ sym_ok if vm_swap | int    == scan_vm.vm_swap | int    else sym_nok }} {{ scan_vm.vm_swap }}
+      vm_net_ip:        {{ '%-32s' | format(vm_net_ip        |string)}} {{ sym_ok if vm_net_ip        == scan_vm.vm_net_ip        else sym_nok }} {{ scan_vm.vm_net_ip }}
+      vm_net_nm:        {{ '%-32s' | format(vm_net_nm        |string)}} {{ sym_ok if vm_net_nm        == scan_vm.vm_net_nm        else sym_nok }} {{ scan_vm.vm_net_nm }}
+      vm_net_gw:        {{ '%-32s' | format(vm_net_gw        |string)}} {{ sym_ok if vm_net_gw        == scan_vm.vm_net_gw        else sym_nok }} {{ scan_vm.vm_net_gw }}
+      vm_net_ns1:       {{ '%-32s' | format(vm_net_ns1       |string)}} {{ sym_ok if vm_net_ns1       == scan_vm.vm_net_ns1       else sym_nok }} {{ scan_vm.vm_net_ns1 }}
+      vm_net_ns2:       {{ '%-32s' | format(vm_net_ns2       |string)}} {{ sym_ok if vm_net_ns2       == scan_vm.vm_net_ns2       else sym_nok }} {{ scan_vm.vm_net_ns2 }}
+      vm_net_sd:        {{ '%-32s' | format(vm_net_sd        |string)}} {{ sym_ok if vm_net_sd        == scan_vm.vm_net_sd        else sym_nok }} {{ scan_vm.vm_net_sd }}

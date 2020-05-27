@@ -1,0 +1,66 @@
+---
+
+- import_tasks: check_vars.yml
+
+
+
+- block:
+
+
+  - name: Role    | Power-on VM
+    when:
+    - vm_auto | default({}) | intersect(['auto', 'auto/all', 'auto/hw', 'auto/power'])
+    - vm_power|bool
+    - scan_native.instance is defined
+    - scan_native.instance.hw_power_status != 'poweredOn'
+    import_role:
+      name:         wucenter_provision
+      tasks_from:   provision_power-on.yml
+
+
+  - name: Tasks   | Re-scan awaked VM
+    when:          boot.changed is defined and boot.changed
+    include_role:
+      name:       wucenter_scan_mini
+
+
+  - name: Checks  | Cannot align powered-off VM
+    when:
+    - scan_native.instance is defined
+    - scan_native.instance.hw_power_status != 'poweredOn'
+    fail:
+      msg: "Cannot align powered-off VM: {{ scan_native.instance.hw_power_status }}"
+
+
+  - name: Checks  | Cannot align non-existing VM
+    when:
+    - (scan_vm is not defined) or (scan_vm is not mapping) or (scan_vm | length == 0)
+    fail:
+      msg: Cannot align non-existing VM
+
+
+  - name: Tasks   | Deep scan
+    include_role:
+      name:       wucenter_scan_full
+
+
+  - import_tasks: check_consistency.yml
+
+
+  - import_tasks: align_vm.yml
+
+
+  rescue:
+  - include_role:
+      name:       wucenter_bury_fail
+  - fail:
+      msg:        "Failed to align VM"
+
+
+  when:
+  - ( state is not defined ) or ( state != 'absent' )
+  - new_vm.instance is not defined
+
+
+- include_role:
+    name:       wucenter_bury_spec

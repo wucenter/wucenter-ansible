@@ -1,0 +1,20 @@
+---
+
+- name: "vSphere | Generate SSH host key"
+  delegate_to:                  localhost
+  changed_when:                 true
+  register:                     keygen
+  vmware_vm_shell:              # DOC https://docs.ansible.com/ansible/latest/modules/vmware_vm_shell_module.html
+    wait_for_process:           true
+    validate_certs:             false
+    username:                   "{{ vcenter_user }}"
+    password:                   "{{ vcenter_pass }}"
+    hostname:                   "{{ vcenter_host }}"
+    datacenter:                 "{{ vcenter_dc }}"
+    vm_id:                      "{{ vm_name }}"
+    folder:                     "{{ vm_folder }}"
+    vm_username:                "{{ robops_user }}"
+    vm_password:                "{{ robops_pass }}"
+    vm_shell:                   /bin/bash
+    vm_shell_args:              |
+      -c "sudo rm /etc/ssh/ssh_host_*key* ; sudo ssh-keygen -t rsa -b 4096 -f /etc/ssh/ssh_host_rsa_key -N '' </dev/null && sudo sed -i -E '/^\s*PasswordAuthentication\s+/d' /etc/ssh/sshd_config && sudo systemctl reload sshd.service"

@@ -1,0 +1,15 @@
+{
+	"folders":
+	[
+		{
+			"path": "./",
+            "folder_exclude_patterns":
+            [
+                "..sublime-workspace",
+                "ansible_collections/ansible",
+                "ansible_collections/community",
+                "roles_galaxy"
+            ]
+		}
+	]
+}

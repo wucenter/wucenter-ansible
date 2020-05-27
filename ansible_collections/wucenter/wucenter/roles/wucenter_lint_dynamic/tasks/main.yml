@@ -1,0 +1,5 @@
+---
+
+- import_tasks: lint_inventory_refs.yml
+
+- import_tasks: lint_inventory_collisions.yml

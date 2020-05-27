@@ -1,0 +1,11 @@
+---
+
+- name: Facts   | VM defaults
+  set_fact:
+    vm_power:                   "{{ vm_power          if vm_power         is defined else vm_defaults.vm_power }}"
+    vm_hotplug:                 "{{ vm_hotplug        if vm_hotplug       is defined else vm_defaults.vm_hotplug }}"
+    vm_ram_reserved:            "{{ vm_ram_reserved   if vm_ram_reserved  is defined else vm_defaults.vm_ram_reserved }}"
+    vm_folder:                  "{{ vm_folder         if (vm_folder is defined) and (vm_folder | length >0)                                         else vm_defaults.vm_folder }}"
+    vm_auto:                    "{{ vm_auto           if (vm_auto   is defined) and (vm_auto  is sequence) and (vm_auto  | default([]) | length >0) else vm_defaults.vm_auto   }}"
+    vm_roles:                   "{{ vm_roles          if (vm_roles  is defined) and (vm_roles is sequence) and (vm_roles | default([]) | length >0) else vm_defaults.vm_roles  }}"
+    vm_vars:                    "{{ vm_vars           if (vm_vars   is defined) and (vm_vars  is mapping)  and (vm_vars  | default({}) | length >0) else vm_defaults.vm_vars   }}"

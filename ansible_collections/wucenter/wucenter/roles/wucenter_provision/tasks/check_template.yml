@@ -1,0 +1,50 @@
+---
+
+# TODO Check template guestId == 'ubuntu64Guest'
+
+
+
+- name: vSphere | Query Template for Disk size
+  run_once:                     true
+  delegate_to:                  localhost
+  delegate_facts:               true
+  register:                     info_template_disk
+  when:                         hostvars['localhost']['info_template_disk'] is not defined
+  vmware_guest_disk_info:       # DOC https://docs.ansible.com/ansible/latest/modules/vmware_guest_disk_info_module.html
+    validate_certs:             false
+    username:                   "{{ vcenter_user }}"
+    password:                   "{{ vcenter_pass }}"
+    hostname:                   "{{ vcenter_host }}"
+    datacenter:                 "{{ vcenter_dc }}"
+    name:                       "{{ template_name }}"
+
+
+
+- name: Checks  | Template Disk size
+  run_once:                     true
+  delegate_to:                  localhost
+  when:
+  - "'guest_disk_info'   not in info_template_disk"
+  - "'0'                 not in info_template_disk.guest_disk_info"
+  - "'capacity_in_bytes' not in info_template_disk.guest_disk_info['0']"
+  - info_template_disk.guest_disk_info['0'].capacity_in_bytes | int != info_template_disk.guest_disk_info['0'].capacity_in_bytes
+  - info_template_disk.guest_disk_info['0'].capacity_in_bytes < 256*1024*1024  # DEV: 256Mb as a bare minimum
+  fail:
+    msg: "Cannot read Template Disk size"
+
+
+
+- name: Facts   | Parse Template Disk size
+  run_once:                     true
+  delegate_to:                  localhost
+  delegate_facts:               true
+  set_fact:
+    template_disk:              "{{ ( info_template_disk.guest_disk_info['0'].capacity_in_bytes /1024/1024 ) | round(0,'floor') | int }}"
+  when:                         "'guest_disk_info' in info_template_disk"
+
+
+
+- name: Checks  | Check Template Disk size
+  when:                         hostvars['localhost']['template_disk'] is not defined
+  fail:
+    msg: "Cannot read Template Disk size"

@@ -1,0 +1,37 @@
+---
+
+users:
+
+  ##########
+  # ROBOPS #
+  ##########
+
+  robops:
+    user_tags:        [ robops ]
+    user_name:        Rob the Robop
+    user_hash:        "______________SAMPLE_PASSWORD_HASH______________"
+                      # TIP mkpasswd --method=SHA-512 --stdin
+
+  #######
+  # OPS #
+  #######
+
+  john:
+    user_tags:        [ ops ]
+    user_name:        John the Ops
+    user_hash:        "______________SAMPLE_PASSWORD_HASH______________"
+    user_keys:
+      - ssh_rsa:      "___________SAMPLE_SSH_RSA_PUBLIC_KEY____________"
+
+  jack:
+    user_tags:        [ ops ]
+    user_name:        Jack then Ops
+    user_hash:        "______________SAMPLE_PASSWORD_HASH______________"
+    user_shell:       /usr/bin/zsh  # TIP Optional shell
+    user_keys:
+      - ssh_rsa:      "___________SAMPLE_SSH_RSA_PUBLIC_KEY____________"
+        comment:      "Keys can have optional comments"
+                      # TIP User can register several SSH RSA keys
+      - ssh_rsa:      "___________SAMPLE_SSH_RSA_PUBLIC_KEY____________"
+        state:        absent  # TIP User SSH RSA keys can be removed
+    state:            absent  # TIP Users can be removed

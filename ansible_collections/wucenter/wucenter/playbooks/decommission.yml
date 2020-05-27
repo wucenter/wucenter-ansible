@@ -1,0 +1,19 @@
+#!./wucenter_player.sh --vault --no-deps --no-role --no-ipam
+---
+
+- import_playbook: init.yml
+
+- name: Decommission vCenter VMs
+  hosts:                        vms
+  gather_facts:                 false
+  collections:
+  # - community.general
+  # - community.vmware
+  - wucenter.wucenter
+  vars_files:
+  - "{{ wucenter_basedir }}credentials/vcenter.yml"
+  vars:
+    ansible_play:               decommission
+  roles:
+  - wucenter_scan_mini
+  - wucenter_decommission

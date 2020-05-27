@@ -1,0 +1,30 @@
+---
+
+- name: Checks  | vm_folder
+  when: vm_folder not in hostvars.localhost.vcenter_folders
+  fail:
+    msg: "Invalid vm_folder value '{{ vm_folder }}' for host '{{ vm_name }}'"
+
+- name: Checks  | vm_datastore
+  when: vm_datastore not in hostvars.localhost.vcenter_datastores
+  fail:
+    msg: "Invalid vm_datastore value '{{ vm_datastore }}' for host '{{ vm_name }}'"
+
+- name: Checks  | vm_cluster
+  when:
+    - not( (vm_cluster is undefined) or (vm_cluster is none) or (vm_cluster | trim == '') )
+    - vm_cluster not in hostvars.localhost.vcenter_clusters
+  fail:
+    msg: "Invalid vm_cluster value '{{ vm_cluster }}' for host '{{ vm_name }}'"
+
+- name: Checks  | vm_network
+  when: vm_network not in hostvars.localhost.vcenter_networks_by_cluster[ vm_cluster ]
+  fail:
+    msg: "Invalid vm_network value '{{ vm_network }}' for host '{{ vm_name }}' in cluster '{{ vm_cluster }}'"
+
+# - name: Checks  | vm_pool
+#   when:
+#     - not( (vm_pool is undefined) or (vm_pool is none) or (vm_pool | trim == '') )
+#     - vm_pool not in hostvars.localhost.vcenter_pools_by_cluster[ vm_cluster ]
+#   fail:
+#     msg: "Invalid vm_pool value '{{ vm_pool }}' for host '{{ vm_name }}'"

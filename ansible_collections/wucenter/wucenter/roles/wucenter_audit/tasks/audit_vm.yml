@@ -1,0 +1,56 @@
+---
+
+# DOC: Generate AUDIT_PATH/{desired,cached,scanned}.yml
+
+- name: Facts   | Init audit variables
+  set_fact:
+    audit_path: "{{ AUDIT_PATH | default('../audit_{{ ansible_date_time.date }}_{{ ansible_date_time.time }}') }}"
+    audit_head: "{{ '%Y-%m-%d %H:%M:%S %Z' | strftime }} {{ ansible_user | default(lookup('env', 'USER', errors='ignore')) | default('unknown_user') }}@{{ controlhost_ip | default('unknown_host') }}"
+
+
+
+- name: Local   | Init audit directory
+  run_once:     true
+  changed_when: false
+  local_action:
+    module:     file
+    path:       "{{ audit_path }}/"
+    state:      directory
+
+
+
+- name: Local   | Desired state
+  run_once:     true
+  delegate_to:  localhost
+  changed_when: false
+  template:
+    src:        vms.j2
+    dest:       "{{ audit_path }}/desired.yml"
+
+
+
+- name: Local   | Cached state
+  run_once:     true
+  delegate_to:  localhost
+  changed_when: false
+  vars:
+    audit_var:  cache_vm
+  template:
+    src:        vms.j2
+    dest:       "{{ audit_path }}/cached.yml"
+
+
+
+- set_fact:
+    scan_cache_vm: "{{ scan_vm | combine( { 'vm_auto': (cache_vm.vm_auto | default('[]') ), 'vm_roles': (cache_vm.vm_roles | default('[]') ), 'vm_vars': (cache_vm.vm_vars | default('{}') ) } ) }}"
+
+
+- name: Local   | Scanned state
+  run_once:     true
+  delegate_to:  localhost
+  changed_when: false
+  vars:
+    audit_var:  scan_cache_vm
+  template:
+    src:        vms.j2
+    dest:       "{{ audit_path }}/scanned.yml"

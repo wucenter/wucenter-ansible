@@ -1,0 +1,67 @@
+---
+
+# DOC: Creates `scan_info`, Appends to `scan_vm`
+
+
+- name: vSphere | Querying VMs, vSphere format
+  delegate_to:                  localhost
+  register:                     scan_info
+  vmware_guest_info:            # DOC https://docs.ansible.com/ansible/latest/modules/vmware_guest_info_module.html
+    validate_certs:             false
+    username:                   "{{ vcenter_user }}"
+    password:                   "{{ vcenter_pass }}"
+    hostname:                   "{{ vcenter_host }}"
+    datacenter:                 "{{ vcenter_dc }}"
+    name:                       "{{ vm_name }}"
+    schema:                     vsphere
+
+- name: Facts   | Parse vSphere config info
+  when:                         scan_info.instance is defined
+  set_fact:
+    temp_vm:
+      vm_hotplug:               "{{ scan_info.instance.config.cpuHotAddEnabled and scan_info.instance.config.cpuHotRemoveEnabled and scan_info.instance.config.memoryHotAddEnabled }}"
+      vm_ram_reserved:          "{{ scan_info.instance.config.memoryReservationLockedToMax | bool }}"
+      # vm_ram:                   "{{ scan_info.instance.config.hardware.memoryMB }}"
+      # vm_cpu:                   "{{ scan_info.instance.config.hardware.numCPU }}"
+      # vm_datastore:             "{{ scan_info.instance.config.datastoreUrl[0].name }}"
+      # vm_network:               "{{ scan_info.instance.guest.net[0].network }}"  # DEV: NOT available when powered-off
+      # vm_net_nm_cidr:           "{{ scan_info.instance.guest.ipStack[0].ipRouteConfig.ipRoute[1].prefixLength }}"
+
+- name: Facts   | Merge vSphere config info
+  when:                         scan_info.instance is defined
+  set_fact:
+    scan_vm:                    "{{ scan_vm | combine(temp_vm) }}"
+    temp_vm:
+
+
+
+- name: Facts   | Parse vSphere guest info 1/2
+  when:
+  - scan_info.instance.guest.ipStack|length >0
+  - scan_info.instance.guest.ipStack[0].dnsConfig.searchDomain|length >0
+  - scan_info.instance.guest.net|length >0
+  - scan_info.instance.guest.net[0].ipAddress|length >0
+  set_fact:
+    temp_vm:
+      vm_name:                  "{{ scan_info.instance.guest.hostName + '.' + scan_info.instance.guest.ipStack[0].dnsConfig.searchDomain[0]}}"  # DEV: AGAIN
+      vm_power:                 "{{ true if 'runtime' in scan_info.instance.guest and scan_info.instance.guest.runtime.powerState == 'poweredOn' else vm_power }}"  # DEV: AGAIN
+      vm_net_ip:                "{{ scan_info.instance.guest.net[0].ipAddress[0] }}"
+      vm_net_gw:                "{{ scan_info.instance.guest.ipStack[0].ipRouteConfig.ipRoute[0].gateway.ipAddress }}"
+      vm_net_sd:                "{{ scan_info.instance.guest.ipStack[0].dnsConfig.searchDomain[0] }}"
+      vm_net_nm:                "{{ ( '0/' + scan_info.instance.guest.ipStack[0].ipRouteConfig.ipRoute[1].prefixLength | string ) | ansible.netcommon.ipaddr('netmask') }}"
+
+# DEV VmWare Guest Tools infos NOT available when powered-off
+- name: Facts   | Parse vSphere guest info 2/2
+  when:                         scan_info.instance.guest.net|length == 0
+  set_fact:
+    temp_vm:
+      vm_power:                 "{{ true if 'runtime' in scan_info.instance.guest and scan_info.instance.guest.runtime.powerState == 'poweredOn' else vm_power }}"  # DEV: AGAIN
+      vm_net_ip:                ERROR
+      vm_net_gw:                ERROR
+      vm_net_sd:                ERROR
+
+- name: Facts   | Merge vSphere guest info
+  when:                         temp_vm is not none
+  set_fact:
+    scan_vm:                    "{{ scan_vm | combine(temp_vm) }}"
+    temp_vm:

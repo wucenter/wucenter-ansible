@@ -1,0 +1,37 @@
+vm_cluster:       {{ vm_spec.vm_cluster }}
+vm_datastore:     {{ vm_spec.vm_datastore }}
+vm_network:       {{ vm_spec.vm_network }}
+vm_power:         {{ vm_spec.vm_power }}
+vm_hotplug:       {{ vm_spec.vm_hotplug }}
+vm_ram_reserved:  {{ vm_spec.vm_ram_reserved }}
+vm_ram:           {{ vm_spec.vm_ram }}
+vm_cpu:           {{ vm_spec.vm_cpu }}
+vm_disk:          {{ vm_spec.vm_disk }}
+vm_swap:          {{ vm_spec.vm_swap }}
+vm_net_ip:        {{ vm_spec.vm_net_ip }}
+vm_net_nm:        {{ vm_spec.vm_net_nm }}
+vm_net_gw:        {{ vm_spec.vm_net_gw }}
+vm_net_ns1:       {{ vm_spec.vm_net_ns1 }}
+vm_net_ns2:       {{ vm_spec.vm_net_ns2 }}
+vm_net_sd:        {{ vm_spec.vm_net_sd }}
+vm_auto:{% if vm_spec.vm_auto | length == 0 %}          []
+{% else %}
+
+{% for vm_tag in vm_spec.vm_auto | default([]) | sort %}
+- {{ vm_tag }}
+{% endfor %}
+{% endif %}
+vm_roles:{% if vm_spec.vm_roles | length == 0 %}         []
+{% else %}
+
+{% for vm_tag in vm_spec.vm_roles | default([]) %}
+- {{ vm_tag }}
+{% endfor %}
+{% endif %}
+vm_vars:{% if vm_spec.vm_vars | length == 0 %}          {}
+{% else %}
+
+{% for vm_var in vm_spec.vm_vars | default({}) | dictsort %}
+  {{ '%-16s' | format(vm_var[0]|string + ':') }}{{ vm_var[1] | to_nice_yaml | regex_replace('\.\.\.$', '') | trim }}
+{% endfor %}
+{% endif %}

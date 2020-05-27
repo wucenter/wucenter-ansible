@@ -1,0 +1,29 @@
+#!./wucenter_player.sh --vault --no-lint --no-deps --no-role --no-ipam
+---
+
+- import_playbook: lint.yml
+
+
+
+- name: Gather vCenter VMs info
+  hosts:                        localhost
+  gather_facts:                 false
+  collections:
+  - wucenter.wucenter
+  # - community.vmware
+  vars_files:
+  - "{{ wucenter_basedir }}credentials/vcenter.yml"
+  - "{{ wucenter_basedir }}credentials/vault.yml"
+  - "{{ wucenter_basedir }}credentials/template.yml"
+  roles:
+  - wucenter_info
+
+
+
+- name: Lint Inventory (dynamic)
+  hosts:                        vms
+  gather_facts:                 false
+  collections:
+  - wucenter.wucenter
+  roles:
+  - wucenter_lint_dynamic

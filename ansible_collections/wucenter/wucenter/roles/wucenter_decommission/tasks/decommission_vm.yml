@@ -1,0 +1,33 @@
+---
+
+- name: vSphere | Remove VMs
+  delegate_to:                  localhost
+  register:                     info
+  vmware_guest:                 # DOC https://docs.ansible.com/ansible/latest/modules/vmware_guest_module.html
+    validate_certs:             false
+    force:                      true
+    username:                   "{{ vcenter_user }}"
+    password:                   "{{ vcenter_pass }}"
+    hostname:                   "{{ vcenter_host }}"
+    datacenter:                 "{{ vcenter_dc }}"
+    cluster:                    "{{ vm_cluster }}"
+    # resource_pool:              "{{ vm_pool | default(omit) }}"
+    name:                       "{{ vm_name }}"
+    folder:                     "{{ vm_folder }}"
+    state:                      absent
+
+
+
+- name: Local   | Forget local SSH known_hosts
+  ignore_errors:              true
+  changed_when:               false
+  when:                       info.changed
+  local_action:
+    module:                   shell
+    cmd:                      ssh-keygen -f ~/.ssh/known_hosts -R {{ vm_net_ip }}
+
+
+
+- name: Meta    | Abort workflow
+  when: info.changed
+  meta: end_host

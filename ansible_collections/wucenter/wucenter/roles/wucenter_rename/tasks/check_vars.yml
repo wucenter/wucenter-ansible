@@ -1,0 +1,18 @@
+---
+
+- name: Checks  | Role required variables
+  fail: msg="{{ var_item }} is not defined"
+  when: (var_item not in vars) or (var_item is none) or (var_item | trim == '')
+  loop_control:
+    loop_var: var_item
+  loop:
+    - vcenter_host
+    - vcenter_dc
+
+    - vcenter_user
+    - vcenter_pass
+
+    - robops_user
+    - robops_pass
+
+    - vm_name

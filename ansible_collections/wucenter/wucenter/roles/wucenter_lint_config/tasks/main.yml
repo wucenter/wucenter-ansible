@@ -1,0 +1,13 @@
+---
+
+- name: Lint Users Directory
+  with_dict:      "{{ users }}"
+  loop_control:
+    loop_var:     user
+  include_tasks:  lint_user.yml
+
+- name: Lint Credentials
+  import_tasks:   lint_credentials.yml
+
+- name: Lint Apps Requirements
+  import_tasks:   lint_requirements.yml

@@ -1,0 +1,32 @@
+---
+
+
+- name: Facts   | Dig up buried scan
+  register: scan_bury
+  when:
+  - vm_auto | default({}) | intersect(['auto', 'auto/all', 'auto/manage', 'auto/bury'])
+  - lookup('env', 'NO_DIG') | length == 0
+  - cache_vm is defined
+  - cache_vm.ansible_fail is defined
+  - cache_vm.ansible_fail == "false"
+  - cache_vm.vm_name | length >0
+  set_fact:
+    scan_vm: "{{ cache_vm }}"
+
+
+
+- block:
+
+  - import_tasks: scan_vsphere.yml
+  - import_tasks: scan_robops.yml
+  - import_tasks: scan_storage.yml
+  - import_tasks: scan_network.yml
+
+  when:
+  - scan_bury.skipped is defined
+  - scan_bury.skipped
+
+
+
+- name: "Tasks   | Audit VMs"
+  import_tasks: debug_scan.yml

@@ -1,0 +1,15 @@
+---
+
+- block:
+
+
+  - import_tasks: bury_vc_name.yml
+
+  - include_role:
+      name:       wucenter_bury_meta
+
+
+  when:
+  - ( state is not defined ) or ( state != 'absent' )
+  - vm_auto | default({}) | intersect(['auto', 'auto/all', 'auto/manage', 'auto/bury'])
+  - lookup('env', 'NO_BURY') | length == 0

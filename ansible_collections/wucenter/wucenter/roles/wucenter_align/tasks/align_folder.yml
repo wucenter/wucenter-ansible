@@ -1,0 +1,13 @@
+---
+
+- name: "vSphere | Align folder"
+  delegate_to:                  localhost
+  register:                     info
+  vmware_guest_move:            # DOC https://docs.ansible.com/ansible/latest/modules/vmware_guest_move_module.html
+    validate_certs:             false
+    username:                   "{{ vcenter_user }}"
+    password:                   "{{ vcenter_pass }}"
+    hostname:                   "{{ vcenter_host }}"
+    datacenter:                 "{{ vcenter_dc }}"
+    uuid:                       "{{ scan_native.instance.hw_product_uuid }}"
+    dest_folder:                "/{{ vcenter_dc }}/vm{{ vm_folder }}"

@@ -1,0 +1,32 @@
+---
+
+# DOC: Integrate additional roles
+
+
+
+# DEV: Variables NOT used by vCenter VMs management, only by additional roles
+- name: Facts   | Ansible internals
+  no_log:                         true
+  set_fact:
+    ansible_host:                 "{{ vm_net_ip | default('ERROR') }}"
+    ansible_user:                 "{{ ops_user }}"
+    ansible_sudo_pass:            "{{ ops_pass | string }}"  # DEV https://github.com/ansible/ansible/issues/24425
+    ansible_os_family:            Debian
+    ansible_distribution:         Ubuntu
+    ansible_distribution_release: bionic
+
+
+
+# DEV: Expose vm_vars to additional roles by merging upstream
+- name: Facts   | Merge VM vars
+  no_log:                         true
+  when:
+  - vm_vars is defined
+  - vm_vars is not none
+  - vm_vars.keys() | length >0
+  - var_key_item is not none
+  loop:                           "{{ vm_vars.keys() | list }}"
+  loop_control:
+    loop_var:                     var_key_item
+  set_fact:
+    "{{ var_key_item }}":         "{{ vm_vars[var_key_item] }}"

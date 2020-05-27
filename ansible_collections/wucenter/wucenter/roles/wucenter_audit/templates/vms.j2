@@ -1,0 +1,33 @@
+{% if audit_var is defined and audit_var | length >0 %}
+{% set folders = ansible_play_hosts_all | map('extract', hostvars) | selectattr(audit_var,   'defined') | map(attribute=audit_var) | selectattr('vm_folder', 'defined') | selectattr('vm_name', 'match', '.') | map(attribute='vm_folder') %}
+{% else %}
+{% set folders = ansible_play_hosts_all | map('extract', hostvars) | selectattr('vm_folder', 'defined') | selectattr('vm_name', 'match', '.') | map(attribute='vm_folder') %}
+{% endif %}
+# {{ audit_head }}
+---
+
+all:
+  children:
+    vms:
+      children:
+
+{% for folder in folders | sort | unique %}
+{% if audit_var is defined and audit_var | length >0 %}
+{% set vm_specs = ansible_play_hosts_all | map('extract', hostvars) | list | json_query('[?'+audit_var+'].'+audit_var+'|[?vm_folder==`'+folder+'`]') %}
+{% else %}
+{% set vm_specs = ansible_play_hosts_all | map('extract', hostvars) | selectattr('vm_folder', 'eq', folder) %}
+{% endif %}
+        {{ folder | regex_replace('^/', '') | regex_replace('[^a-zA-Z0-9_]', '_') }}:
+          vars:
+            vm_folder:          {{ folder }}
+          hosts:
+
+{% for vm_spec in vm_specs %}
+{% if ( vm_spec.vm_name | length >0 ) and ( vm_spec.absent | default('') != 'absent' ) %}
+{% set vm_fqdn = vm_spec.vm_rename if (vm_spec.vm_rename is defined and '.' in vm_spec.vm_rename) else ( vm_spec.vm_rename + '.' + vm_spec.vm_net_sd if (vm_spec.vm_rename is defined and vm_spec.vm_rename|length >0) else vm_spec.vm_name ) %}
+            {{ vm_fqdn | regex_replace('^([^.]+)\\..*$', '\\1') if ( vm_fqdn | regex_replace('^[^.]+\\.', '') == vm_spec.vm_net_sd ) else vm_fqdn  }}:
+{% macro tpl_vm() %}{% include 'vm.j2' %}{% endmacro %}{{ '%*s' | format(14, '') + tpl_vm() | indent(14) }}
+{% endif %}
+{% endfor %}
+{% endfor %}
+...

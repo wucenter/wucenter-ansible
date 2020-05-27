@@ -1,0 +1,130 @@
+---
+
+# DOC: instrument Ansible vmware_vm_inventory plugin to gather vCenter *complete* host list
+# ALT: Use VMware HTTP API
+# https://docs.ansible.com/ansible/devel/modules/vmware_core_info_module.html
+
+
+
+- name: Checks  | Vault password consistency
+  when:
+  - vault_args is defined
+  - vault_args == "--ask-vault-pass"
+  - vault_pass is not defined
+  fail:
+    msg: "Internal error: started with --ask-vault-pass but no password provided"
+
+
+
+- name: vCenter | Pull auto-inventory 1/2  # WORKAROUND https://github.com/ansible/ansible/issues/45214
+  no_log:                       true
+  delegate_to:                  localhost
+  when:                         vault_pass is defined
+  changed_when:                 false
+  register:                     scan_inventory1
+  command:                      # DOC https://docs.ansible.com/ansible/latest/modules/command_module.html
+    chdir: "{{ wucenter_basedir }}"
+    cmd: ansible-inventory --list -i credentials/vmware.yml --vault-password-file=/bin/cat
+    stdin: "{{ vault_pass }}"
+
+
+
+- name: vCenter | Pull auto-inventory 2/2
+  no_log:                       true
+  delegate_to:                  localhost
+  when:                         vault_pass is not defined
+  changed_when:                 false
+  register:                     scan_inventory2
+  command:                      # DOC https://docs.ansible.com/ansible/latest/modules/command_module.html
+    chdir: "{{ wucenter_basedir }}"
+    cmd: ansible-inventory --list -i credentials/vmware.yml {{ vault_args | default() }}
+
+
+
+- name: Facts   | Merge auto-inventory
+  no_log:                       true
+  set_fact:
+    scan_inventory: "{{ scan_inventory1 if scan_inventory2.skipped else scan_inventory2 }}"
+    scan_inventory1:
+    scan_inventory2:
+
+
+
+# TODO check vCenter VM names are unique !!!
+
+
+
+- name: Facts   | Parse auto-inventory 1/2
+  no_log:                       true
+  vars:
+    parsed_inventory:           "{{ ( scan_inventory.stdout | from_json ) ['_meta'] ['hostvars'] }}"
+  set_fact:
+    vcenter_inventory: |
+      {% for inventory_vm_name in parsed_inventory %}
+      {{ inventory_vm_name | regex_replace('_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', '') }}: {{ parsed_inventory[ inventory_vm_name ] }}
+      {% endfor %}
+
+
+
+- name: Facts   | Parse auto-inventory 2/2
+  set_fact:
+    vcenter_inventory: "{{ vcenter_inventory | from_yaml }}"
+
+
+
+- name: Facts   | Parse unmanaged-inventory 1/2
+  no_log:                       true
+  set_fact:
+    vcenter_vms_unmanaged: |
+      {% for inventory_vm_name in vcenter_inventory %}
+      {% if ( inventory_vm_name not in inventory_vm_names )
+         or ( 'guest.guestId' not in vcenter_inventory[inventory_vm_name] )
+         or ( vcenter_inventory[inventory_vm_name]['guest.guestId'] != 'ubuntu64Guest' ) %}
+      - {{ inventory_vm_name }}
+      {% endif %}
+      {% endfor %}
+# TODO more checks to flag a VM as unmanaged ???
+
+
+
+- name: Facts   | Parse unmanaged-inventory 2/2
+  set_fact:
+    vcenter_vms_unmanaged: "{{ vcenter_vms_unmanaged | from_yaml }}"
+
+
+
+- name: Facts   | Parse auto-inventory IPs 1/3
+  no_log:                       true
+  set_fact:
+    vcenter_ips_unmanaged: |
+      {% for inventory_vm_unmanaged in vcenter_vms_unmanaged %}
+      {% if 'guest.net' in vcenter_inventory[inventory_vm_unmanaged] %}
+      {% for inventory_vm_unmanaged_iface in vcenter_inventory[inventory_vm_unmanaged]['guest.net'] %}
+      {% if inventory_vm_unmanaged_iface['ipAddress'] | length >0 %}
+      {% for inventory_vm_unmanaged_ip in inventory_vm_unmanaged_iface['ipAddress'] %}
+      {% if inventory_vm_unmanaged_ip | ansible.netcommon.ipv4 %}
+      - ip: {{ inventory_vm_unmanaged_ip }}
+        vm: {{ inventory_vm_unmanaged }}
+      {% endif %}
+      {% endfor %}
+      {% endif %}
+      {% endfor %}
+      {% endif %}
+      {% endfor %}
+
+
+
+- name: Facts   | Parse auto-inventory IPs 2/3
+  no_log:                       true
+  when:                           vcenter_ips_unmanaged | trim | length >0
+  set_fact:
+    vcenter_ips_unmanaged: |
+      {% for ip_group in vcenter_ips_unmanaged | from_yaml | groupby('ip') %}
+        {{ ip_group[0] }}: {{ ip_group[1] | map(attribute='vm') | list }}
+      {% endfor %}
+
+
+
+- name: Facts   | Parse auto-inventory IPs 3/3
+  set_fact:
+    vcenter_ips_unmanaged: "{{ vcenter_ips_unmanaged | from_yaml }}"

@@ -1,0 +1,59 @@
+---
+
+- name: "Tasks   | Align vm_folder first"
+  when:
+  - scan_vm.vm_folder is defined
+  - scan_vm.vm_folder is not none
+  - scan_vm.vm_folder | trim != ''
+  - scan_vm.vm_folder != vm_folder
+  - vm_auto | default({}) | intersect(['auto', 'auto/all', 'auto/data', 'auto/folder'])
+  import_role:
+    name:         wucenter_align
+    tasks_from:   align_folder.yml
+
+
+- name: Facts   | Check FQDN
+  when:                         "'.' not in vm_rename"
+  set_fact:
+    vm_name: "{{ vm_rename if '.' in vm_rename else vm_rename+'.'+vm_net_sd }}"
+
+
+
+- name: "vSphere | Rename VM"
+  delegate_to:                  localhost
+  register:                     info
+  vmware_guest:                 # DOC https://docs.ansible.com/ansible/latest/modules/vmware_guest_module.html
+    force:                      true
+    validate_certs:             false
+    state:                      present
+    username:                   "{{ vcenter_user }}"
+    password:                   "{{ vcenter_pass }}"
+    hostname:                   "{{ vcenter_host }}"
+    datacenter:                 "{{ vcenter_dc }}"
+    uuid:                       "{{ scan_native.instance.hw_product_uuid }}"
+    name:                       "{{ vm_name }}"
+    folder:                     "{{ vm_folder }}"
+    # customization:
+    #   hostname:                 "{{ vm_name }}"
+
+
+
+- name: Tasks   | Re-align hostname for renamed VM
+  when: info.changed
+  import_role:
+    name:         wucenter_align
+    tasks_from:   align_hostname.yml
+
+
+
+- name: Tasks   | Bury hostname for renamed VM
+  when: info.changed
+  include_role:
+    name:                       wucenter_bury_name
+
+
+
+- name: Tasks   | Re-scan renamed VM
+  when: info.changed
+  include_role:
+    name:                       wucenter_scan_mini

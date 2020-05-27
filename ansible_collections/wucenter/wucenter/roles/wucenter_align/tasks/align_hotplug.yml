@@ -1,0 +1,20 @@
+---
+
+- name: "vSphere | Align hotplug"
+  delegate_to:                  localhost
+  register:                     info
+  vmware_guest:                 # DOC https://docs.ansible.com/ansible/latest/modules/vmware_guest_module.html
+    force:                      true
+    validate_certs:             false
+    username:                   "{{ vcenter_user }}"
+    password:                   "{{ vcenter_pass }}"
+    hostname:                   "{{ vcenter_host }}"
+    datacenter:                 "{{ vcenter_dc }}"
+    name:                       "{{ vm_name }}"
+    folder:                     "{{ vm_folder }}"
+    state:                      present
+    hardware:
+      hotadd_cpu:               "{{ vm_hotplug | bool }}"
+      hotremove_cpu:            "{{ vm_hotplug | bool }}"
+      hotadd_memory:            "{{ vm_hotplug | bool }}"
+      hotremove_memory:         "{{ vm_hotplug | bool }}"

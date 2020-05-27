@@ -1,0 +1,5 @@
+---
+
+- import_tasks: check_vars.yml
+
+- import_tasks: vmware_vm_linenotinfile.yml

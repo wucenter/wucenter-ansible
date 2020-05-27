@@ -1,0 +1,26 @@
+#!./wucenter_player.sh --vault --no-lint --no-deps --no-role --no-ipam
+---
+
+- import_playbook: init.yml
+
+- name: Lint Inventory (static)
+  hosts:                        vms
+  gather_facts:                 false
+  collections:
+  - wucenter.wucenter
+  roles:
+  - wucenter_lint_static
+
+- name: Lint Configuration
+  hosts:                        localhost
+  gather_facts:                 false
+  collections:
+  - wucenter.wucenter
+  vars_files:
+  - "{{ wucenter_basedir }}credentials/vcenter.yml"
+  - "{{ wucenter_basedir }}credentials/template.yml"
+  - "{{ wucenter_basedir }}credentials/robops.yml"
+  - "{{ wucenter_basedir }}credentials/ops.yml"
+  - "{{ wucenter_basedir }}inventory/users.yml"
+  roles:
+  - wucenter_lint_config

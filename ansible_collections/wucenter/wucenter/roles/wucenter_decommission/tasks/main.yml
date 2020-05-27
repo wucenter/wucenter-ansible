@@ -1,0 +1,19 @@
+---
+
+- block:
+
+  - import_tasks: check_vars.yml
+
+  - import_tasks: decommission_vm.yml
+    when:
+    - ( state is defined ) and ( state == 'absent' )
+    - not scan_native.failed
+    - vm_auto | default({}) | intersect(['auto', 'auto/all', 'auto/manage', 'auto/decommission'])
+    - (vm_rename is not defined) or (vm_rename | trim == '')
+
+
+  rescue:
+  - include_role:
+      name:       wucenter_bury_fail
+  - fail:
+      msg:        "Failed to decommission VM"

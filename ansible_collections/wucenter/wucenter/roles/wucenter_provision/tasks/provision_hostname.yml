@@ -1,0 +1,11 @@
+---
+
+# DEV Default /etc/hostname does not end with '\n', this is standard behaviour
+# but gets flagged as 'changed' by vmware_vm_textfile role in further alignments
+
+- name: "vSphere | Set hostname: /etc/hostname"
+  vars:
+    vmware_vm_textfile_path:      /etc/hostname
+    vmware_vm_textfile_data:      "{{ vm_name | regex_replace('\\..*', '') }}"
+  import_role:
+    name:                         vmware_vm_textfile

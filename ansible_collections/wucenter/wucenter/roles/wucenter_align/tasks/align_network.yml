@@ -1,0 +1,58 @@
+---
+
+- name: "vSphere | Align network"
+  delegate_to:                  localhost
+  register:                     info
+  vmware_guest:                 # DOC https://docs.ansible.com/ansible/latest/modules/vmware_guest_module.html
+    force:                      true
+    validate_certs:             false
+    username:                   "{{ vcenter_user }}"
+    password:                   "{{ vcenter_pass }}"
+    hostname:                   "{{ vcenter_host }}"
+    datacenter:                 "{{ vcenter_dc }}"
+    name:                       "{{ vm_name }}"
+    folder:                     "{{ vm_folder }}"
+    state:                      present
+    networks:
+    - label:                    eth0
+      name:                     "{{ vm_network }}"
+      state:                    present
+      # connected:                true
+      # start_connected:          true
+
+
+
+# DEV: VM is not in poweroff state, can not do guest OS customization.
+# - name: "vSphere | Align Network config"
+#   delegate_to:                  localhost
+#   register:                     info
+#   vmware_guest:                 # DOC https://docs.ansible.com/ansible/latest/modules/vmware_guest_module.html
+#     validate_certs:             false
+#     force:                      true
+#     wait_for_ip_address:        true
+#     wait_for_customization:     true
+#     state:                      present
+#     username:                   "{{ vcenter_user }}"
+#     password:                   "{{ vcenter_pass }}"
+#     hostname:                   "{{ vcenter_host }}"
+#     datacenter:                 "{{ vcenter_dc }}"
+#     name:                       "{{ vm_name }}"
+#     folder:                     "/{{ vcenter_dc }}{{ vm_folder }}vm"
+#     networks:
+#     - name:                     "{{ vm_network }}"
+#       ip:                       "{{ vm_net_ip }}"
+#       netmask:                  "{{ vm_net_nm }}"
+#       gateway:                  "{{ vm_net_gw }}"
+#     customization:
+#       existing_vm:              true
+#       domain:                   "{{ vm_net_sd }}"
+#       dns_servers:
+#       -                         "{{ vm_net_ns1 }}"
+#       -                         "{{ vm_net_ns2 }}"
+#       annotation: |
+#         ALIGNED_vm_net_ip:      {{ vm_net_ip }}
+#         ALIGNED_vm_net_nm:      {{ vm_net_nm }}
+#         ALIGNED_vm_net_gw:      {{ vm_net_gw }}
+#         ALIGNED_vm_net_sd:      {{ vm_net_sd }}
+#         ALIGNED_vm_net_ns1:     {{ vm_net_ns1 }}
+#         ALIGNED_vm_net_ns2:     {{ vm_net_ns2 }}

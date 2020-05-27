@@ -1,0 +1,28 @@
+---
+
+- name: vSphere | Bury VM meta/fail
+  delegate_to:                  localhost
+  register:                     bury_meta
+  changed_when:                 false
+  vars:
+    vm_meta:
+    - name:                     ansible_date
+      value:                    "{{ '%Y-%m-%d %H:%M:%S %Z' | strftime }}"
+    - name:                     ansible_fail
+      value:                    "true"
+    - name:                     ansible_host
+      value:                    "{{ controlhost_ip | default('unknown_host') }}"
+    - name:                     ansible_play
+      value:                    "{{ ansible_play | default('unknown_play') }}"
+    - name:                     ansible_user
+      value:                    "{{ ansible_user | default(lookup('env', 'USER', errors='ignore')) | default('unknown_user') }}"
+  vmware_guest_custom_attributes:  # DOC https://docs.ansible.com/ansible/latest/modules/vmware_guest_custom_attributes_module.html
+    validate_certs:             false
+    username:                   "{{ vcenter_user }}"
+    password:                   "{{ vcenter_pass }}"
+    hostname:                   "{{ vcenter_host }}"
+    datacenter:                 "{{ vcenter_dc }}"
+    name:                       "{{ vm_name }}"
+    folder:                     "{{ vm_folder }}"
+    attributes:                 "{{ vm_meta }}"
+    state:                      present

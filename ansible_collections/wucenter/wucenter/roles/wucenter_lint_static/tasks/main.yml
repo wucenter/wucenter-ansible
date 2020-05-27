@@ -1,0 +1,5 @@
+---
+
+- name: Lint VMs Inventory
+  import_tasks: lint_inventory.yml
+  when: ( state is not defined ) or ( state != 'absent' )

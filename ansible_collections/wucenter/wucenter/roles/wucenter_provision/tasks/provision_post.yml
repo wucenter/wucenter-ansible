@@ -1,0 +1,47 @@
+---
+
+- name: "vSphere | Update APT"
+  delegate_to:                  localhost
+  changed_when:                 false
+  vmware_vm_shell:              # DOC https://docs.ansible.com/ansible/latest/modules/vmware_vm_shell_module.html
+    wait_for_process:           true
+    validate_certs:             false
+    username:                   "{{ vcenter_user }}"
+    password:                   "{{ vcenter_pass }}"
+    hostname:                   "{{ vcenter_host }}"
+    datacenter:                 "{{ vcenter_dc }}"
+    vm_id:                      "{{ vm_name }}"
+    folder:                     "{{ vm_folder }}"
+    vm_username:                "{{ robops_user }}"
+    vm_password:                "{{ robops_pass }}"
+    vm_shell:                   /usr/bin/sudo
+    vm_shell_args:              |
+      apt update --allow-releaseinfo-change
+
+
+
+- name: "NOT AN ERROR | Delete VM Template user"
+  ignore_errors:                true  # DEV: Ignorance required for committing suicide
+  delegate_to:                  localhost
+  register:                     userdel
+  changed_when:                 userdel.exit_code is defined and userdel.exit_code == 125
+  failed_when:                  |
+    (   userdel.exit_code is not defined )
+    or
+    (   userdel.exit_code != 125
+    and userdel.exit_code != 0
+    )
+  vmware_vm_shell:              # DOC https://docs.ansible.com/ansible/latest/modules/vmware_vm_shell_module.html
+    wait_for_process:           true
+    validate_certs:             false
+    username:                   "{{ vcenter_user }}"
+    password:                   "{{ vcenter_pass }}"
+    hostname:                   "{{ vcenter_host }}"
+    datacenter:                 "{{ vcenter_dc }}"
+    vm_id:                      "{{ vm_name }}"
+    folder:                     "{{ vm_folder }}"
+    vm_username:                "{{ robops_user }}"
+    vm_password:                "{{ robops_pass }}"
+    vm_shell:                   /usr/bin/sudo
+    vm_shell_args:              |
+      bash -c 'userdel --force --remove {{ template_user | quote }} && rm /etc/sudoers.d/{{ template_user | quote }} && exit 125'

@@ -1,0 +1,59 @@
+---
+
+- name: "vSphere | Setup VMs swap disk"
+  delegate_to:                  localhost
+  register:                     info
+  vmware_guest_disk:            # DOC https://docs.ansible.com/ansible/latest/modules/vmware_guest_disk_module.html
+    validate_certs:             false
+    username:                   "{{ vcenter_user }}"
+    password:                   "{{ vcenter_pass }}"
+    hostname:                   "{{ vcenter_host }}"
+    datacenter:                 "{{ vcenter_dc }}"
+    name:                       "{{ vm_name }}"
+    folder:                     "{{ vm_folder }}"
+    disk:
+      - size_mb:                "{{ vm_swap }}"
+        state:                  present
+        scsi_controller:        0
+        unit_number:            1
+        datastore:              "{{ vm_datastore }}"
+        type:                   thick
+
+
+
+- name: "vSphere | Grow VMs swap file system"
+  delegate_to:                    localhost
+  register:                       info
+  changed_when:                   info.exit_code is defined and info.exit_code == 0
+  failed_when:                    |
+    (     info.exit_code is not defined )
+    or
+    (     info.exit_code is defined
+      and info.exit_code != 0
+    )
+  vmware_vm_shell:                # DOC https://docs.ansible.com/ansible/latest/modules/vmware_vm_shell_module.html
+    validate_certs:               false
+    wait_for_process:             true
+    username:                     "{{ vcenter_user }}"
+    password:                     "{{ vcenter_pass }}"
+    hostname:                     "{{ vcenter_host }}"
+    datacenter:                   "{{ vcenter_dc }}"
+    vm_id:                        "{{ vm_name }}"
+    folder:                       "{{ vm_folder }}"
+    vm_username:                  "{{ robops_user }}"
+    vm_password:                  "{{ robops_pass }}"
+    vm_shell:                     /bin/bash
+    vm_shell_args:                |
+      -ce 'ID=sdb ; DISK=/dev/$ID
+          sudo swapoff $DISK || true
+          sudo tee /sys/block/$ID/device/rescan <<<1
+          sudo mkswap -f $DISK
+          sudo swapon $DISK
+          cnt=0 ; while [[ -z $UUID ]] ; do
+            sleep 1
+            UUID=$( sudo lsblk --noheadings --output UUID $DISK )
+            ((cnt+=1))
+            [[ $cnt -ge 5 ]] && exit 124
+          done
+             awk -v m1="UUID=$UUID" -v m2=swap "(\$1==m1)&&(\$2==m2){s=1} END{if (s) exit 0; exit 1}" /etc/fstab \
+          || sudo tee -a /etc/fstab <<<"UUID=$UUID swap swap sw 0 0"'

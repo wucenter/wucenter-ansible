@@ -1,0 +1,5 @@
+---
+
+allow_duplicates: true
+collections:
+- community.vmware

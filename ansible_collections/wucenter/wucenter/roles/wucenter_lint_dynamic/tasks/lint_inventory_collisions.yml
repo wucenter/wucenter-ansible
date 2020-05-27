@@ -1,0 +1,11 @@
+---
+
+- name: "Checks  | vm_name: vCenter VM name collision detection"
+  when: vm_name in hostvars.localhost.vcenter_vms_unmanaged
+  fail:
+    msg: "Invalid vm_name '{{ vm_name }}' collides with existing unmanaged vCenter VM'"
+
+- name: "Checks  | vm_net_ip: vCenter IP collision detection"
+  when: vm_net_ip in hostvars.localhost.vcenter_ips_unmanaged
+  fail:
+    msg: "Invalid vm_net_ip value '{{ vm_net_ip }}' for host '{{ vm_name }}' collides with existing unmanaged vCenter VMs:\n{{ hostvars.localhost.vcenter_ips_unmanaged[vm_net_ip] }}"

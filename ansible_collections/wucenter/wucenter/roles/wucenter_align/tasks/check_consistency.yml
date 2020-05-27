@@ -1,0 +1,21 @@
+---
+
+- name: Checks  | Unaligned cluster
+  when: vm_cluster != scan_vm.vm_cluster
+  fail:
+    msg: |
+      Cluster divergence for host '{{ vm_name }}': '{{ vm_cluster }}' != '{{ scan_vm.vm_cluster }}'
+      Cannot align 'vm_cluster', please fix manually with vCenter web interface.
+
+
+
+- name: Checks  | Inconsistent vm_net_sd change on short-named VM
+  when:
+  - vm_net_sd != scan_vm.vm_net_sd
+  - ( '.' not in vm_name )
+  fail:
+    msg: |
+      Inconsistent 'vm_net_sd' change on short-named VM: '{{ vm_name }}'
+      Changing VM Search Domain requires FQDN VM name, please fix 'vm_name'
+
+# TODO move to scan_full role

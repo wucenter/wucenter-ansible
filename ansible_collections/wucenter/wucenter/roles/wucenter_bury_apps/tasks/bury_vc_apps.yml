@@ -1,0 +1,25 @@
+---
+
+- name: vSphere | Bury VM apps
+  delegate_to:                  localhost
+  register:                     bury_apps
+  changed_when:                 false
+  when:
+  - ( state is not defined ) or ( state != 'absent' )
+  - vm_auto | default({}) | intersect(['auto', 'auto/all', 'auto/manage', 'auto/bury'])
+  vars:
+    vm_spec:                  # DEV: Note leading whitespace in else clause to WORKAROUND pyVmomi unserializing YAML-serialized empty dicts/lists
+    - name:                   vm_roles
+      value:                  "{{ ( vm_roles | to_yaml | regex_replace('\\.\\.\\.$', '') | trim  ) if (vm_roles is defined) and (vm_roles | length>0) else ' []' }}"  
+    - name:                   vm_vars
+      value:                  "{{ ( vm_vars  | to_yaml | regex_replace('\\.\\.\\.$', '') | trim  ) if (vm_vars  is mapping) and (vm_vars  | length>0) else ' {}' }}"
+  vmware_guest_custom_attributes:  # DOC https://docs.ansible.com/ansible/latest/modules/vmware_guest_custom_attributes_module.html
+    validate_certs:             false
+    username:                   "{{ vcenter_user }}"
+    password:                   "{{ vcenter_pass }}"
+    hostname:                   "{{ vcenter_host }}"
+    datacenter:                 "{{ vcenter_dc }}"
+    name:                       "{{ vm_name }}"
+    folder:                     "{{ vm_folder }}"
+    attributes:                 "{{ vm_spec }}"
+    state:                      present

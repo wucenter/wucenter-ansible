@@ -1,0 +1,11 @@
+---
+
+- name: Checks  | Python version
+  fail:
+    msg: "You are currently using '{{ ansible_python_interpreter }}', please run with -e 'ansible_python_interpreter={{ python_inter }}'"
+  when: ansible_python_interpreter is not regex(python_regex)
+
+- name: Checks  | Ansible version
+  fail:
+    msg: "You are currently using Ansible version {{ ansible_version.full }}, please upgrade to {{ ansible_vers }} or higher"
+  when: ansible_version.full is version(ansible_vers, '<')

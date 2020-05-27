@@ -1,0 +1,6 @@
+---
+
+python_regex:           "/python3$"
+python_inter:           /usr/bin/python3
+ansible_vers:           2.9.7
+wucenter_player_path:   /usr/local/bin/wucenter_player

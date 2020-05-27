@@ -1,0 +1,9 @@
+/ansible_collections/ansible
+/ansible_collections/community
+/books
+/credentials
+/inventory
+/roles
+/roles_galaxy
+/audit_*
+*.sublime-workspace

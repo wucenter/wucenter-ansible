@@ -1,0 +1,20 @@
+---
+
+- name: vSphere | Bury VM name
+  delegate_to:                  localhost
+  register:                     bury_name
+  changed_when:                 false
+  vars:
+    vm_spec:
+    - name:                     vm_name
+      value:                    "{{ vm_name | to_yaml | regex_replace('\\.\\.\\.$', '') | trim }}"
+  vmware_guest_custom_attributes:  # DOC https://docs.ansible.com/ansible/latest/modules/vmware_guest_custom_attributes_module.html
+    validate_certs:             false
+    username:                   "{{ vcenter_user }}"
+    password:                   "{{ vcenter_pass }}"
+    hostname:                   "{{ vcenter_host }}"
+    datacenter:                 "{{ vcenter_dc }}"
+    name:                       "{{ vm_name }}"
+    folder:                     "{{ vm_folder }}"
+    attributes:                 "{{ vm_spec }}"
+    state:                      present

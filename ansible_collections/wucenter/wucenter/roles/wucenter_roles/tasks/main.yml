@@ -1,0 +1,30 @@
+---
+
+- block:
+
+  - import_tasks: check_vars.yml
+
+  - import_tasks: play_roles.yml
+
+
+  rescue:
+  - include_role:
+      name:       wucenter_bury_fail
+  - fail:
+      msg:        "Failed to play roles"
+
+
+  always:
+  - name: Vault   | Shred SSH private key
+    run_once:               true
+    ignore_errors:          true
+    changed_when:           false
+    local_action:           # DOC https://docs.ansible.com/ansible/latest/modules/command_module.html
+      module:               command
+      cmd:                  "shred -u {{ wucenter_basedir + 'credentials/SSH_SKEY' | quote }}"
+
+
+  when:
+  - (state is not defined ) or ( state != 'absent' )
+  - vm_auto | default({}) | intersect(['auto', 'auto/all', 'auto/manage', 'auto/roles'])
+  - vm_roles | length >0

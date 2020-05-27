@@ -1,0 +1,19 @@
+---
+
+# DEV: Override 'vm_name' and rescan
+
+- name: Facts   | Update in-memory inventory
+  set_fact:
+    vm_name:                    "{{ vm_rename if '.' in vm_rename else vm_rename + '.' + vm_net_sd }}"
+
+- name: vSphere | Querying renamed VMs, native format
+  delegate_to:                  localhost
+  register:                     scan_native
+  # ignore_errors:                true
+  vmware_guest_info:            # DOC https://docs.ansible.com/ansible/latest/modules/vmware_guest_info_module.html
+    validate_certs:             false
+    username:                   "{{ vcenter_user }}"
+    password:                   "{{ vcenter_pass }}"
+    hostname:                   "{{ vcenter_host }}"
+    datacenter:                 "{{ vcenter_dc }}"
+    name:                       "{{ vm_name }}"

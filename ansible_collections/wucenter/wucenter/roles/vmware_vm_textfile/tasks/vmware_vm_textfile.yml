@@ -1,0 +1,37 @@
+---
+
+- name: "vSphere | Set text file contents: {{ vmware_vm_textfile_path }}"
+  delegate_to:                    localhost
+  changed_when:                   vmware_vm_textfile_info.exit_code is defined and vmware_vm_textfile_info.exit_code == 125
+  register:                       vmware_vm_textfile_info
+  failed_when:                    |
+    (   vmware_vm_textfile_info.exit_code is not defined )
+    or
+    (   vmware_vm_textfile_info.exit_code != 125
+    and vmware_vm_textfile_info.exit_code != 0
+    )
+  vars:
+    vmware_vm_textfile_endn:     "{% if ( vmware_vm_textfile_data[-1] == '\n' ) %}{{ vmware_vm_textfile_data }}{% else %}{{ vmware_vm_textfile_data }}\n{% endif %}"
+    vmware_vm_textfile_here:     "\n{{ vmware_vm_textfile_endn }}EOF_8e87v3.4r97f86\n"
+  vmware_vm_shell:                # DOC https://docs.ansible.com/ansible/latest/modules/vmware_vm_shell_module.html
+    validate_certs:               false
+    wait_for_process:             true
+    username:                     "{{ vcenter_user }}"
+    password:                     "{{ vcenter_pass }}"
+    hostname:                     "{{ vcenter_host }}"
+    datacenter:                   "{{ vcenter_dc }}"
+    vm_id:                        "{{ vm_name }}"
+    folder:                       "{{ vm_folder }}"
+    vm_username:                  "{{ robops_user }}"
+    vm_password:                  "{{ robops_pass }}"
+    vm_shell:                     /bin/bash
+    vm_shell_args:                |
+      <<'EOF_8e87v3.4r97f86' -c "
+      if ! sudo md5sum -c /dev/fd/0 ; then
+             sudo tee {{ vmware_vm_textfile_path | quote }} < <(cat /dev/fd/0 <<'EOF_8e87v3.4r97f86' "{{ vmware_vm_textfile_here | quote }}" ) \
+          && exit 125
+          exit 1
+      fi"
+      {{ vmware_vm_textfile_endn | hash('md5') }} {{ vmware_vm_textfile_path }}
+      EOF_8e87v3.4r97f86
+    # DBG <<'EOF_8e87v3.4r97f86' -cx "exec 1>/tmp/logh 2>&1

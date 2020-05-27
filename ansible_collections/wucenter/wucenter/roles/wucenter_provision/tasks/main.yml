@@ -1,0 +1,52 @@
+---
+
+- name: Block | Provision
+  block:
+
+
+  - import_tasks: check_vars.yml
+
+  - include_tasks: check_template.yml
+
+  - import_tasks: provision_vm.yml
+
+  - import_tasks: provision_net.yml
+
+  - import_tasks: provision_hostname.yml
+
+  - import_tasks: provision_disk.yml
+    when:
+    - vm_disk > hostvars['localhost']['template_disk']|int
+
+  - import_tasks: provision_swap.yml
+    when:
+    - vm_swap > 0
+
+  - import_tasks: provision_user.yml
+
+  - import_tasks: provision_ssh.yml
+
+  - import_tasks: provision_post.yml
+
+  - import_tasks: provision_power-off.yml
+    when:
+    - not vm_power|bool
+
+
+  rescue:
+  - include_role:
+      name:       wucenter_bury_fail
+  - fail:
+      msg:        "Failed to provision VM"
+
+
+  when:
+  - ( state is not defined ) or ( state != 'absent' )
+  - vm_auto | default({}) | intersect(['auto', 'auto/all', 'auto/manage', 'auto/provision'])
+  - scan_native.failed
+  - (vm_rename is not defined) or (vm_rename | trim == '')
+
+
+
+- include_role:
+    name:       wucenter_bury_spec

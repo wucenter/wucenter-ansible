@@ -1,0 +1,10 @@
+#!./wucenter_player.sh --no-synt --no-lint --no-ipam
+---
+
+- name: Setup WUcenter
+  hosts:                        localhost
+  gather_facts:                 false
+  collections:
+  - wucenter.wucenter
+  roles:
+  - wucenter_setup

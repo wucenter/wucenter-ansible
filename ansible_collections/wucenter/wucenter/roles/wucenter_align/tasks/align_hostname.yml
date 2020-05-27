@@ -1,0 +1,71 @@
+---
+
+
+- name: "Role    | Set hostname: /etc/hostname"
+  import_role:
+    name:         wucenter_provision
+    tasks_from:   provision_hostname.yml
+
+
+
+- name: "vSphere | Set hostname: transient"
+  delegate_to:                    localhost
+  when:                           vmware_vm_textfile_info.changed
+  register:                       hostname_info
+  vmware_vm_shell:                # DOC https://docs.ansible.com/ansible/latest/modules/vmware_vm_shell_module.html
+    wait_for_process:             true
+    validate_certs:               false
+    username:                     "{{ vcenter_user }}"
+    password:                     "{{ vcenter_pass }}"
+    hostname:                     "{{ vcenter_host }}"
+    datacenter:                   "{{ vcenter_dc }}"
+    vm_id:                        "{{ vm_name }}"
+    folder:                       "{{ vm_folder }}"
+    vm_username:                  "{{ robops_user }}"
+    vm_password:                  "{{ robops_pass }}"
+    vm_shell:                     /usr/bin/sudo
+    vm_shell_args:                "hostname {{ vm_name | regex_replace('\\..*', '') | quote }}"
+    # ALT
+    # vm_shell_args:                "hostnamectl set-hostname {{ vm_name | regex_replace('\\..*', '') | quote }}"
+
+
+
+- name: "vSphere | Set hostname: /etc/hosts"
+  delegate_to:                    localhost
+  changed_when:                   hostname_hosts.exit_code is defined and hostname_hosts.exit_code == 125
+  failed_when:                    |
+    (   hostname_hosts.exit_code is not defined )
+    or
+    (   hostname_hosts.exit_code != 125
+    and hostname_hosts.exit_code != 0
+    )
+  register:                       hostname_hosts
+  vars:
+    hostname_names:               "{{ vm_name }} {{ vm_name | regex_replace('\\..*', '') }}"                # DEV: NAME FQDN
+    hostname_regex1:              "[[:blank:]]*{{ vm_net_ip | regex_escape }}[[:blank:]]+"   # DEV: __IP__
+    # hostname_regex1:              "[[:blank:]]*{{ vm_net_ip | regex_replace('\\.', '\\.') }}[[:blank:]]+"   # DEV: __IP__
+    hostname_regex2:              "[^ \\t]+[[:blank:]]+[^ \\t]+"                                            # DEV: ANY__ANY
+    hostname_regex3:              "{{ vm_name }}[[:blank:]]+{{ vm_name | regex_replace('\\..*', '') }}"     # DEV: NAME__FQDN
+    hostname_regex4:              "([[:blank:]]+(#.*)?)?"                                                   # DEV: __COMMENT
+  vmware_vm_shell:                # DOC https://docs.ansible.com/ansible/latest/modules/vmware_vm_shell_module.html
+    validate_certs:               false
+    wait_for_process:             true
+    username:                     "{{ vcenter_user }}"
+    password:                     "{{ vcenter_pass }}"
+    hostname:                     "{{ vcenter_host }}"
+    datacenter:                   "{{ vcenter_dc }}"
+    vm_id:                        "{{ vm_name }}"
+    folder:                       "{{ vm_folder }}"
+    vm_username:                  "{{ robops_user }}"
+    vm_password:                  "{{ robops_pass }}"
+    vm_shell:                     /bin/bash
+    vm_shell_args:                |
+      -c "
+      grep -E '^{{ hostname_regex1 }}{{ hostname_regex3 }}{{ hostname_regex4 }}$' /etc/hosts && exit 0
+      if ! grep -E '^{{ hostname_regex1 }}{{ hostname_regex2 }}{{ hostname_regex4 }}$' /etc/hosts ; then
+        sudo tee -a /etc/hosts <<<'{{ vm_net_ip }}    {{ hostname_names }}' && exit 125
+      fi
+      orig=\"\$( md5sum /etc/hosts )\"
+      sudo sed -E -i '0,/^({{ hostname_regex1 }}){{ hostname_regex2 }}{{ hostname_regex4 }}$/ s/^({{ hostname_regex1 }}){{ hostname_regex2 }}{{ hostname_regex4 }}$/\1{{ hostname_names }}\2/' /etc/hosts
+      md5sum -c <<<\"\$orig\" || exit 125
+      "

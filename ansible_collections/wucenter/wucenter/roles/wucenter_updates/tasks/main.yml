@@ -1,0 +1,7 @@
+---
+
+- import_tasks: check_vars.yml
+
+- name: Tasks | Pull APT updates list
+  when: ( state is not defined ) or ( state != 'absent' )
+  import_tasks: query_apt.yml

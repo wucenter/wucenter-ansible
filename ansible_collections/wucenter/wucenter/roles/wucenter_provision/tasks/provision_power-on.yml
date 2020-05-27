@@ -1,0 +1,37 @@
+---
+
+- name: vSphere | Power-on VMs
+  delegate_to:                  localhost
+  register:                     boot
+  vmware_guest_powerstate:      # DOC https://docs.ansible.com/ansible/latest/modules/vmware_guest_powerstate_module.html
+    validate_certs:             false
+    username:                   "{{ vcenter_user }}"
+    password:                   "{{ vcenter_pass }}"
+    hostname:                   "{{ vcenter_host }}"
+    name:                       "{{ vm_name }}"
+    folder:                     "{{ vm_folder }}"
+    state:                      powered-on
+
+
+
+- name: "vSphere | Wait VMs Guest Tools"
+  when:                         boot.changed
+  delegate_to:                  localhost
+  register:                     info
+  changed_when:                 false
+  vmware_guest_tools_wait:      # DOC https://docs.ansible.com/ansible/latest/modules/vmware_guest_tools_wait_module.html
+    validate_certs:             false
+    username:                   "{{ vcenter_user }}"
+    password:                   "{{ vcenter_pass }}"
+    hostname:                   "{{ vcenter_host }}"
+    folder:                     "{{ vm_folder }}"
+    name:                       "{{ vm_name }}"
+
+
+
+# DEV: VmWare Guest Tools get up before exposing scan_info.instance.guest.*
+- name: "Local   | Wait VM Boot"
+  delegate_to:                  localhost
+  when:                         boot.changed
+  wait_for:
+    timeout:                    30

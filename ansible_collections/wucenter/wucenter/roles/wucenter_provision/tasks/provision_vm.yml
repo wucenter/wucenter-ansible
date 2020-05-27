@@ -1,0 +1,66 @@
+---
+
+- name: "vSphere | Provision VMs"
+  delegate_to:                  localhost
+  # throttle:                     1
+  register:                     new_vm
+  vmware_guest:                 # DOC https://docs.ansible.com/ansible/latest/modules/vmware_guest_module.html
+    validate_certs:             false
+    wait_for_ip_address:        true
+    wait_for_customization:     true
+    state:                      poweredon
+    username:                   "{{ vcenter_user }}"
+    password:                   "{{ vcenter_pass }}"
+    hostname:                   "{{ vcenter_host }}"
+    datacenter:                 "{{ vcenter_dc }}"
+    cluster:                    "{{ vm_cluster }}"
+    # resource_pool:              "{{ vm_pool | default(omit) }}"
+    name:                       "{{ vm_name }}"
+    template:                   "{{ template_name }}"
+    folder:                     "{{ vm_folder | default('/{{ vcenter_dc }}/vm') }}"
+    datastore:                  "{{ vm_datastore }}"
+    hardware:
+      # num_cpu_cores_per_socket:
+      num_cpus:                 "{{ vm_cpu | int }}"
+      memory_mb:                "{{ vm_ram | int }}"
+      mem_reservation:          "{{ vm_ram | int }}"
+      memory_reservation_lock:  "{{ vm_ram_reserved | bool }}"
+      hotadd_cpu:               "{{ vm_hotplug | bool }}"
+      hotremove_cpu:            "{{ vm_hotplug | bool }}"
+      hotadd_memory:            "{{ vm_hotplug | bool }}"
+      hotremove_memory:         "{{ vm_hotplug | bool }}"
+      # nested_virt:              true
+    networks:
+    - label:                    eth0
+      name:                     "{{ vm_network }}"
+      ip:                       "{{ vm_net_ip }}"
+      netmask:                  "{{ vm_net_nm }}"
+      gateway:                  "{{ vm_net_gw }}"
+    customization:
+      domain:                   "{{ vm_net_sd }}"
+      dns_servers:
+      - "{{ vm_net_ns1 }}"
+      - "{{ vm_net_ns2 }}"
+      # hwclockUTC:               true
+      # timezone:                 Europe/Paris
+      #
+    # DOC https://stackoverflow.com/a/57976458
+    # customvalues:
+    # - key:    MY_KEY
+    #   value:  my-value
+    # - key:    MY_KEY2
+    #   value:  my-value2
+
+
+
+- name: "vSphere | Wait VMs Guest Tools"
+  when:                         new_vm.changed
+  delegate_to:                  localhost
+  register:                     info
+  vmware_guest_tools_wait:      # DOC https://docs.ansible.com/ansible/latest/modules/vmware_guest_tools_wait_module.html
+    validate_certs:             false
+    username:                   "{{ vcenter_user }}"
+    password:                   "{{ vcenter_pass }}"
+    hostname:                   "{{ vcenter_host }}"
+    folder:                     "{{ vm_folder }}"
+    name:                       "{{ vm_name }}"
