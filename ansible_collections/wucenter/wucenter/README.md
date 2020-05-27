@@ -94,7 +94,7 @@ First install Ansible for Python3:
 
 ```
 sudo apt install python3-pip
-sudo -H pip3 install --upgrade pip ansible
+sudo -H pip3 install --no-cache-dir --upgrade pip ansible
 ```
 
 Then create WUcenter workspace:
@@ -119,7 +119,7 @@ WUcenter is tested on Ubuntu bionic with Ansible for Python3.
 Once you installed the `python3-pip` package you can install Ansible with `pip3`:
 
 ```
-sudo -H pip3 install ansible
+sudo -H pip3 install --no-cache-dir ansible
 ```
 
 1. Install WUcenter software

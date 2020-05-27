@@ -3,8 +3,8 @@
 namespace:      wucenter
 name:           wucenter
 version:        0.0.1
-readme:         docs/README.md
-authors:        Elias <wucenter@elias.la>
+readme:         README.md
+authors:        wucenter at elias dot la
 description:    VMware vCenter Ubuntu VMs
 license:        [WTFPL, MIT]
 tags:           [vmware, vcenter, ubuntu, bionic, gitops, iac]
