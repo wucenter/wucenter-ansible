@@ -11,10 +11,11 @@
     - [Additional roles management](#additional-roles-management)
     - [Transparent Ansible Vault support](#transparent-ansible-vault-support)
 - [Requirements](#requirements)
-- [Get started](#get-started)
+- [Install](#install)
+- [Getting started](#getting-started)
 - [Documentation](#documentation)
-    - [Workspace](#workspace)
     - [Setup](#setup)
+    - [Workspace](#workspace)
     - [Player](#player)
         - [Features](#features-1)
         - [Usage](#usage)
@@ -85,27 +86,61 @@ Scale virtual hardware resources without rebooting:
     + pre-installed Python 3 & VMware Guest Tools
 - Limitation: Ansible check-mode is not supported
 
-## Get started
+## Install
+
+These install instructions are here for *experimented* users, detailed instructions follow.
+
+First install Ansible for Python3:
+
+```
+sudo apt install python3-pip
+sudo -H pip3 install --upgrade pip ansible
+```
+
+Then create WUcenter workspace:
+
+``` bash
+mkdir workspace
+cd workspace
+ansible-galaxy collection install wucenter.wucenter -p ./
+ansible_collections/wucenter/wucenter/wucenter_setup.yml
+ansible_collections/wucenter/wucenter/wucenter_creds.yml
+mkdir inventory roles
+touch inventory/users.yml inventory/vms.yml
+```
+
+
+## Getting started
+
+0. Install requirements
+
+WUcenter is tested on Ubuntu bionic with Ansible for Python3.
+
+Once you installed the `python3-pip` package you can install Ansible with `pip3`:
+
+```
+sudo -H pip3 install ansible
+```
 
 1. Install WUcenter software
 
-- either, clone from Github as a new Ansible workspace
+- either, pull last tagged version from Ansible Galaxy into existing Ansible workspace
 
-```bash
-cd $SOMEWHERE
-git clone https://github.com/wucenter/wucenter $NEW_WORKSPACE_NAME
-```
-
-- or, pull from Ansible Galaxy into existing Ansible workspace
-
-```bash
+``` bash
 cd $EXISTING_WORKSPACE
 ansible-galaxy collection install wucenter.wucenter -f -p ./
 ```
 
+- or, clone current master from Github as a new Ansible workspace
+
+``` bash
+cd $SOMEWHERE
+git clone https://github.com/wucenter/wucenter $NEW_WORKSPACE_NAME
+```
+
 - finally, run WUcenter installation script
 
-```bash
+``` bash
 ansible_collections/wucenter/wucenter/wucenter_setup.sh
 ```
 
@@ -113,7 +148,7 @@ ansible_collections/wucenter/wucenter/wucenter_setup.sh
 
 - either, use WUcenter Vaulted credentials wizard
 
-```bash
+``` bash
 ansible_collections/wucenter/wucenter/wucenter_creds.sh
 ```
 
@@ -121,9 +156,9 @@ ansible_collections/wucenter/wucenter/wucenter_creds.sh
 
 3. Configure WUcenter inventory
 
-WUcenter requires 2 files, see `samples/inventory/`.
+WUcenter requires 2 files, check `samples/inventory/`.
 - `inventory/vms.yml` for defining virtual machines, theirs specs & their roles
-- `inventory/users.yml` for defining administration users
+- `inventory/users.yml` admin users directory
 
 4. Optional: roles
 
@@ -132,6 +167,16 @@ WUcenter requires 2 files, see `samples/inventory/`.
 - configure `roles/requirements.yml` to automatically install pristine roles to `roles_galaxy/`
 
 ## Documentation
+
+### Setup
+
+Once `wucenter.wucenter` collection has been deployed to `./ansible_collections` directory, run `wucenter_setup.sh` to setup your Ansible workspace with WUcenter:
+
+- Install WUcenter player
+- Generate WUcenter playbooks
+- Install/update Python librairies (pip3)
+- Install/update Ansible collections/roles
+- Setup Ansible configuration (`ansible.cfg`)
 
 ### Workspace
 
@@ -147,17 +192,7 @@ Workspace layout:
 - `roles/` Custom Ansible roles
 - `roles_galaxy/` Pristine Ansible roles, managed by `roles/requirements.yml`
 
-Recommended usage is to have `credentials/`, `inventory/` and `roles` symlinked to managed GIT repos.
-
-### Setup
-
-Once `wucenter.wucenter` collection has been deployed to `./ansible_collections` directory, run `wucenter_setup.sh` to setup your Ansible workspace with WUcenter:
-
-- Install WUcenter player
-- Generate WUcenter playbooks
-- Install/update Python librairies (pip3)
-- Install/update Ansible collections/roles
-- Setup Ansible configuration (`ansible.cfg`)
+Recommended usage is to have `credentials/`, `inventory/` and `roles/` symlinked to GIT repos.
 
 ### Player
 
@@ -182,7 +217,7 @@ All playbooks include a shebang to call the player transparently.
 
 The player accepts the following options:
 
-~~~
+```
 USAGE:  wucenter_player.sh --book PLAYBOOK.yml [OPTIONS] [MORE_OPTIONS]
 DESC:   Ansible playbook wrapper
 
@@ -201,13 +236,13 @@ OPTIONS:
 
 MORE_OPTIONS:
   See: ansible-playbook --help
-~~~
+```
 
 It is possible to specify `ansible-playbook` options **after** the player's ones:
 
-~~~ bash
+``` bash
 ./scan.yml -A -F -vv --limit localhost,myhost
-~~~
+```
 
 The above command will scan `myhost` VM:
 
@@ -269,9 +304,9 @@ Credential files supports Ansible Vault both for full file-vaulting and for YAML
 Use the provided interactive wizard to generate a complete credentials bundle or follow the credentials spec to populate your `credentials` directory.
 
 To interactively populate all required credentials, run from project base directory:
-~~~ bash
+``` bash
 ansible_collections/wucenter/wucenter/wucenter_creds.sh
-~~~
+```
 
 #### Credentials Spec
 
@@ -338,14 +373,14 @@ For specific roles: `credentials/git.yml`
 #### Using Ansible Vault
 
 - Encrypt vault single variable
-~~~ bash
+``` bash
 ansible-vault encrypt_string --name 'git_pass' 's3(r3t' --vault-password-file credentials/VAULT_PASS
-~~~
+```
 
 - Decrypt vault single variable
-~~~ bash
+``` bash
 ansible localhost -m debug -a var='git_pass' -e "@credentials/git.yml" --vault-password-file credentials/VAULT_PASS
-~~~
+```
 
 ### VMs Inventory
 
