@@ -9,7 +9,7 @@
     - ( state is defined ) and ( state == 'absent' )
     - not scan_native.failed
     - vm_auto | default({}) | intersect(['auto', 'auto/all', 'auto/manage', 'auto/decommission'])
-    - (vm_rename is not defined) or (vm_rename | trim == '')
+    - (vm_rename is not defined) or (vm_rename | trim | length == 0)
 
 
   rescue:

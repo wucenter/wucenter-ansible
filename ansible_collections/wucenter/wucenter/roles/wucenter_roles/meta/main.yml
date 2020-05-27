@@ -3,3 +3,12 @@
 collections:
 - community.general
 - community.vmware
+
+galaxy_info:
+  description:          "WUcenter main roles: tagged roles"
+  author:               "wucenter at elias dot la"
+  license:              "WTFPL, MIT"
+  min_ansible_version:  2.9.6
+  platforms:
+  - name:               Ubuntu
+    versions:           [bionic]

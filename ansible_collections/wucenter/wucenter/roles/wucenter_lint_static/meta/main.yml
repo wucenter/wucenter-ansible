@@ -2,3 +2,12 @@
 
 collections:
 - community.general
+
+galaxy_info:
+  description:          "WUcenter main roles: lint inventory"
+  author:               "wucenter at elias dot la"
+  license:              "WTFPL, MIT"
+  min_ansible_version:  2.9.6
+  platforms:
+  - name:               Ubuntu
+    versions:           [bionic]
