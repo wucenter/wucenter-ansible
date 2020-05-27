@@ -15,8 +15,8 @@
 - name: Checks  | VM name
   when:
   - ( '.' not in inventory_hostname )
-  - (vm_name is not defined) or (vm_name | trim == '') or ('.' not in vm_name)
-  - (vm_net_sd is not defined) or (vm_net_sd | trim == '')
+  - (vm_name is not defined) or (vm_name | trim | length == 0) or ('.' not in vm_name)
+  - (vm_net_sd is not defined) or (vm_net_sd | trim | length == 0)
   fail:
     msg: "Cannot compute FQDN for VM: {{ inventory_hostname }}"
 
@@ -25,7 +25,7 @@
 - name: Facts   | VM name 1/3
   when:
   - vm_name is defined
-  - vm_name | trim != ''
+  - vm_name | trim | length != 0
   - ( '.' not in vm_name )
   set_fact:
     vm_name: "{{ vm_name }}.{{ vm_net_sd }}"
@@ -34,7 +34,7 @@
 
 - name: Facts   | VM name 2/3
   when:
-  - (vm_name is not defined) or (vm_name | trim == '')
+  - (vm_name is not defined) or (vm_name | trim | length == 0)
   - ( '.' not in inventory_hostname )
   set_fact:
     vm_name: "{{ inventory_hostname }}.{{ vm_net_sd }}"
@@ -43,7 +43,7 @@
 
 - name: Facts   | VM name 3/3
   when:
-  - (vm_name is not defined) or (vm_name | trim == '')
+  - (vm_name is not defined) or (vm_name | trim | length == 0)
   - ( '.' in inventory_hostname )
   set_fact:
     vm_name: "{{ inventory_hostname }}"

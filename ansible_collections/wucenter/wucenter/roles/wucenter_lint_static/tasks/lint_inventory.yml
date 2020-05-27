@@ -9,7 +9,7 @@
 - name: Checks  | vm_rename
   when:
   - vm_rename is defined
-  - ( vm_rename == vm_name ) or ( vm_rename | trim == '' )
+  - ( vm_rename == vm_name ) or ( vm_rename | trim | length == 0 )
   fail:
     msg: "Invalid vm_rename value '{{ vm_rename }}' for host '{{ vm_name }}'"
 

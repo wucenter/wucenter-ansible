@@ -2,7 +2,7 @@
 
 - name: Checks  | Role required variables
   fail: msg="{{ var_item }} is not defined"
-  when: (var_item not in vars) or (var_item is none) or (var_item | trim == '')
+  when: (var_item is not defined) or (var_item is none) or (var_item | trim | length == 0)
   loop_control:
     loop_var: var_item
   loop:

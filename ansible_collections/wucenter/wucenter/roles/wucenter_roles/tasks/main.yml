@@ -17,10 +17,10 @@
   always:
   - name: Vault   | Shred SSH private key
     run_once:               true
+    delegate_to:            localhost
     ignore_errors:          true
     changed_when:           false
-    local_action:           # DOC https://docs.ansible.com/ansible/latest/modules/command_module.html
-      module:               command
+    command:                # DOC https://docs.ansible.com/ansible/latest/modules/command_module.html
       cmd:                  "shred -u {{ wucenter_basedir + 'credentials/SSH_SKEY' | quote }}"
 
 

@@ -2,10 +2,11 @@
 
 - name: Checks  | Role required variables
   fail: msg="{{ var_item }} is not defined"
-  when: (var_item not in vars) or (var_item is none) or (var_item | trim == '')
+  when: (var_item is not defined) or (var_item is none) or (var_item | trim | length == 0)
   loop_control:
     loop_var: var_item
   loop:
+
     - vm_roles
 
     - ops_sshk
@@ -16,3 +17,11 @@
     - ansible_os_family
     - ansible_distribution
     - ansible_distribution_release
+
+    # For burying only
+    - vcenter_user
+    - vcenter_pass
+    - vcenter_host
+    - vcenter_dc
+    - vm_name
+    - vm_folder

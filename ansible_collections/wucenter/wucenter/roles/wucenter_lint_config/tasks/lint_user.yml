@@ -3,7 +3,7 @@
 - name: Checks  | Supported user_state
   when:
   - ( user.value.user_state is defined )
-  - ( user.value.user_state | trim != '')
+  - ( user.value.user_state | trim | length != 0)
   - ( user.value.user_state != 'absent' )
   fail:
     msg: "Invalid user_state for user '{{ user.key }}': '{{ user.value.user_state }}'"
@@ -22,7 +22,7 @@
   - name: Checks  | Ops and Robops must have user_hash
     when:
     - user.value.user_tags | default({}) | intersect(['ops', 'robops'])
-    - (user.value.user_hash is not defined) or (user.value.user_hash | trim == '')
+    - (user.value.user_hash is not defined) or (user.value.user_hash | trim | length == 0)
     fail:
       msg: "Missing user_hash for Rob/Ops user '{{ user.key }}'"
 

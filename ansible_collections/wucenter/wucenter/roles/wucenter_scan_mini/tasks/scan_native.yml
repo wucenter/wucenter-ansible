@@ -20,7 +20,7 @@
   when:
   - scan_native.failed
   - vm_rename is defined
-  - vm_rename | trim != ''
+  - vm_rename | trim | length != 0
   - vm_rename != vm_name
   include_tasks: scan_renamed.yml
 

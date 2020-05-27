@@ -8,4 +8,6 @@
 - name: "Checks  | vm_net_ip: vCenter IP collision detection"
   when: vm_net_ip in hostvars.localhost.vcenter_ips_unmanaged
   fail:
-    msg: "Invalid vm_net_ip value '{{ vm_net_ip }}' for host '{{ vm_name }}' collides with existing unmanaged vCenter VMs:\n{{ hostvars.localhost.vcenter_ips_unmanaged[vm_net_ip] }}"
+    msg: |
+      Invalid vm_net_ip value '{{ vm_net_ip }}' for host '{{ vm_name }}' collides with existing unmanaged vCenter VMs:
+      {{ hostvars.localhost.vcenter_ips_unmanaged[vm_net_ip] }}

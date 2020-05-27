@@ -19,11 +19,11 @@
 
 
 - name: Local   | Forget local SSH known_hosts
+  delegate_to:                localhost
   ignore_errors:              true
   changed_when:               false
   when:                       info.changed
-  local_action:
-    module:                   shell
+  shell:
     cmd:                      ssh-keygen -f ~/.ssh/known_hosts -R {{ vm_net_ip }}
 
 

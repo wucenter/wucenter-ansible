@@ -11,9 +11,9 @@
 
 - name: Local   | Init audit directory
   run_once:     true
+  delegate_to:  localhost
   changed_when: false
-  local_action:
-    module:     file
+  file:
     path:       "{{ audit_path }}/"
     state:      directory
 

@@ -9,5 +9,5 @@
 - name: Lint Credentials
   import_tasks:   lint_credentials.yml
 
-- name: Lint Apps Requirements
-  import_tasks:   lint_requirements.yml
+# - name: Lint Apps Requirements
+#   import_tasks:   lint_requirements.yml

@@ -12,7 +12,7 @@
 
 - name: Checks  | vm_cluster
   when:
-    - not( (vm_cluster is undefined) or (vm_cluster is none) or (vm_cluster | trim == '') )
+    - not( (vm_cluster is undefined) or (vm_cluster is none) or (vm_cluster | trim | length == 0) )
     - vm_cluster not in hostvars.localhost.vcenter_clusters
   fail:
     msg: "Invalid vm_cluster value '{{ vm_cluster }}' for host '{{ vm_name }}'"
@@ -24,7 +24,7 @@
 
 # - name: Checks  | vm_pool
 #   when:
-#     - not( (vm_pool is undefined) or (vm_pool is none) or (vm_pool | trim == '') )
+#     - not( (vm_pool is undefined) or (vm_pool is none) or (vm_pool | trim | length == 0) )
 #     - vm_pool not in hostvars.localhost.vcenter_pools_by_cluster[ vm_cluster ]
 #   fail:
 #     msg: "Invalid vm_pool value '{{ vm_pool }}' for host '{{ vm_name }}'"

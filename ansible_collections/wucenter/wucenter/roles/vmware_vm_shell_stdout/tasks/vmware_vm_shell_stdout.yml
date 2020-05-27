@@ -4,7 +4,7 @@
 
   - name: "vSphere | Run shell command: {% if (vmware_vm_shell_stdout_lab is defined) and (vmware_vm_shell_stdout_lab | length > 0) %}{{ vmware_vm_shell_stdout_lab }}{% else %}{{ vmware_vm_shell_stdout_bin | regex_replace('^(.*/)?([^/]+)$', '\\2') }}{% endif %}"
     delegate_to:                    localhost
-    changed_when:                   vmware_vm_shell_stdout_cro|default(false) != true
+    changed_when:                   vmware_vm_shell_stdout_cro|default(false)
     register:                       vmware_vm_shell_stdout_info
     # vars:
     #   vmware_vm_shell_stdout_info:  "{{ vmware_vm_shell_stdout_info | default('info') }}"
@@ -46,12 +46,12 @@
 
 
   - name: Facts   | Parse stdout YAML
-    when: vmware_vm_shell_stdout_yml | default(false) | bool == true
+    when: vmware_vm_shell_stdout_yml | default(false) | bool
     set_fact: # DEV Configurable output var receives YAML data
       "{{ vmware_vm_shell_stdout_var }}": "{{ lookup('file', vmware_vm_shell_stdout_tmp) | from_yaml }}"
 
   - name: Facts   | Parse stdout var
-    when: vmware_vm_shell_stdout_yml | default(false) | bool == false
+    when: ! ( vmware_vm_shell_stdout_yml | default(false) | bool )
     set_fact: # DEV Configurable output var receives RAW data
       "{{ vmware_vm_shell_stdout_var }}": "{{ lookup('file', vmware_vm_shell_stdout_tmp) }}"
 
@@ -78,10 +78,10 @@
 
 
   - name: Local   | Remove local temporary stdout file
+    delegate_to:                    localhost
     changed_when:                   false
     when:                           vm_net_ip is not defined or vm_net_ip != controlhost_ip # DEV: don't rm from self, already done over API
-    local_action:
-      module:                       file  # DOC https://docs.ansible.com/ansible/latest/modules/file_module.html
+    file:                           # DOC https://docs.ansible.com/ansible/latest/modules/file_module.html
       path:                         "{{ vmware_vm_shell_stdout_tmp }}"
       state:                        absent
 
@@ -89,6 +89,6 @@
   - name: "Facts   | Register {{ vmware_vm_shell_stdout_reg }}"
     when:
     - vmware_vm_shell_stdout_reg is not none
-    - vmware_vm_shell_stdout_reg | trim != ''
+    - vmware_vm_shell_stdout_reg | trim | length != 0
     set_fact:
       "{{ vmware_vm_shell_stdout_reg }}": "{{ vmware_vm_shell_stdout_info }}"

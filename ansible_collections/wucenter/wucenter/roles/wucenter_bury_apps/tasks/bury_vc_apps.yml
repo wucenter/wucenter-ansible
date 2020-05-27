@@ -10,7 +10,7 @@
   vars:
     vm_spec:                  # DEV: Note leading whitespace in else clause to WORKAROUND pyVmomi unserializing YAML-serialized empty dicts/lists
     - name:                   vm_roles
-      value:                  "{{ ( vm_roles | to_yaml | regex_replace('\\.\\.\\.$', '') | trim  ) if (vm_roles is defined) and (vm_roles | length>0) else ' []' }}"  
+      value:                  "{{ ( vm_roles | to_yaml | regex_replace('\\.\\.\\.$', '') | trim  ) if (vm_roles is defined) and (vm_roles | length>0) else ' []' }}"
     - name:                   vm_vars
       value:                  "{{ ( vm_vars  | to_yaml | regex_replace('\\.\\.\\.$', '') | trim  ) if (vm_vars  is mapping) and (vm_vars  | length>0) else ' {}' }}"
   vmware_guest_custom_attributes:  # DOC https://docs.ansible.com/ansible/latest/modules/vmware_guest_custom_attributes_module.html

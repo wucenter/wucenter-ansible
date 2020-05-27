@@ -7,15 +7,15 @@
   set_fact:
     vault_args:             null
     vault_pass:             null
-# DEV Rogue role still can include using `var_files:`
+# DEV Rogue role still can re-include using `var_files:`
 
 
 
 - name: Vault   | Decrypt SSH private key
   run_once:                 true
+  delegate_to:              localhost
   changed_when:             false
-  local_action:             # DOC https://docs.ansible.com/ansible/latest/modules/copy_module.html
-    module:                 copy
+  copy:                     # DOC https://docs.ansible.com/ansible/latest/modules/copy_module.html
     dest:                   "{{ wucenter_basedir }}credentials/SSH_SKEY"
     content:                "{{ ops_sshk }}\n"
     mode:                   '0600'
@@ -26,6 +26,15 @@
   no_log:                   true
   set_fact:
     ansible_ssh_private_key_file: "{{ wucenter_basedir }}credentials/SSH_SKEY"
+
+
+
+- name: Vars    | GIT credentials
+  no_log:                       true
+  when:
+  - lookup('file', '{{ wucenter_basedir }}credentials/git.yml', errors='ignore')
+  include_vars:
+    file:                       credentials/git.yml
 
 
 
@@ -81,10 +90,6 @@
       become:               true
 
 
-- name: Vars    | vCenter credentials
-  no_log: true
-  include_vars:
-    file:                   "{{ wucenter_basedir }}credentials/vcenter.yml"
 
 - name: Tasks   | Bury apps attributes
   # become:                   false  # DEV: playbook may be set as become:true

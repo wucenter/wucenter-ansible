@@ -4,7 +4,7 @@
   when:
   - scan_vm.vm_folder is defined
   - scan_vm.vm_folder is not none
-  - scan_vm.vm_folder | trim != ''
+  - scan_vm.vm_folder | trim | length != 0
   - scan_vm.vm_folder != vm_folder
   - vm_auto | default({}) | intersect(['auto', 'auto/all', 'auto/data', 'auto/folder'])
   import_role:

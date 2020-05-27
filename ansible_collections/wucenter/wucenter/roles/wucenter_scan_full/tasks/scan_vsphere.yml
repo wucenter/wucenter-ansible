@@ -43,7 +43,7 @@
   - scan_info.instance.guest.net[0].ipAddress|length >0
   set_fact:
     temp_vm:
-      vm_name:                  "{{ scan_info.instance.guest.hostName + '.' + scan_info.instance.guest.ipStack[0].dnsConfig.searchDomain[0]}}"  # DEV: AGAIN
+      vm_name:                  "{{ scan_info.instance.guest.hostName + '.' + scan_info.instance.guest.ipStack[0].dnsConfig.searchDomain[0] }}"  # DEV: AGAIN
       vm_power:                 "{{ true if 'runtime' in scan_info.instance.guest and scan_info.instance.guest.runtime.powerState == 'poweredOn' else vm_power }}"  # DEV: AGAIN
       vm_net_ip:                "{{ scan_info.instance.guest.net[0].ipAddress[0] }}"
       vm_net_gw:                "{{ scan_info.instance.guest.ipStack[0].ipRouteConfig.ipRoute[0].gateway.ipAddress }}"
