@@ -17,7 +17,7 @@ This module executes sudo-ed commands using `vmware_vm_shell` module, thus it MU
 | vm_username                 | true       |                                                     |
 | vm_password                 | true       |                                                     |
 | vm_name                     | true       |                                                     |
-| vm_folder                   | true       |                                                     |
+| vm_folder                   | false      |                                                     |
 | vmware_vm_lineinfile_path   | true       | STRING  File path                                   |
 | vmware_vm_lineinfile_line   | true       | STRING  Line data                                   |
 

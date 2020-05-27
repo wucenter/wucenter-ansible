@@ -2,14 +2,3 @@
 
 - import_tasks: check_ansible.yml
 - import_tasks: dependencies.yml
-- import_tasks: setup_player.yml
-- import_tasks: setup_books.yml
-
-# TODO ansible_collections/requirements.yml
-# collections:
-# - name:     ansible.netcommon
-# - name:     community.general
-# - name:     community.vmware
-# # - name:     wucenter.wucenter 
-
-# TODO roles/requirements.yml

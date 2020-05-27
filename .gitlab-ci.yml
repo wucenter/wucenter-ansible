@@ -17,7 +17,7 @@ build_collection:
     - mkdir build/
     - cd ansible_collections/wucenter/wucenter
     - chmod 770 .  # DEV https://docs.ansible.com/ansible/devel/reference_appendices/config.html#cfg-in-world-writable-dir
-    - sed -i -E 's/(version:\s+).*$/\1'"$CI_COMMIT_TAG"'/' galaxy.yml # DEV Set version from tag
+    - sed -i -E 's/(version:\s+).*$/\1'"$CI_COMMIT_TAG"'/' galaxy.yml # DEV Set Galaxy version from Gitlab tag
     - ansible-galaxy collection build --output-path ../../../build/
     - ansible-galaxy collection publish ../../../build/wucenter-wucenter-*.tar.gz --api-key=$GALAXY_API_KEY
   artifacts:
