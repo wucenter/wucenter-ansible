@@ -1,1 +1,1 @@
-ansible_collections/wucenter/wucenter/docs/README.md
+ansible_collections/wucenter/wucenter/README.md
