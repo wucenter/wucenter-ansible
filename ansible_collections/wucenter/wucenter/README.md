@@ -11,7 +11,7 @@
   - [Additional roles management](#additional-roles-management)
   - [Transparent Ansible Vault support](#transparent-ansible-vault-support)
 - [Requirements](#requirements)
-- [Install](#install)
+- [Quick Install](#quick-install)
 - [Getting started](#getting-started)
 - [Documentation](#documentation)
   - [Setup](#setup)
@@ -69,24 +69,25 @@ Scale virtual hardware resources without rebooting:
 
 ### Transparent Ansible Vault support
 
-- Included WUcenter player allows passing the vault password either as a file or an environment variable.
-- Included WUcenter credentials wizard helps creating a vaulted credentials bundle.
+- Included WUcenter credentials wizard helps creating a vaulted credentials bundle
+- Included WUcenter player reads the master vault password interactively, or either as a file or an env var
 
 ## Requirements
 
 - VMware vCenter cluster
     + version >=6.7U3
 - Ansible control host
+    + Python 3
     + Ansible version >=2.9.6
     + tested on Ubuntu bionic
 - Ubuntu bionic (18.04) VM template (not published yet)
     + static IP
-    + password-les sudoer user
+    + password-less sudoer user
     + configured APT
     + pre-installed Python 3 & VMware Guest Tools
 - Limitation: Ansible check-mode is not supported
 
-## Install
+## Quick Install
 
 These install instructions are here for *experimented* users, detailed instructions follow.
 
@@ -114,7 +115,7 @@ touch inventory/users.yml inventory/vms.yml
 
 0. Install requirements
 
-WUcenter is tested on Ubuntu bionic with Ansible for Python3.
+WUcenter is tested on Ubuntu bionic with Ansible for Python 3.
 
 Once you installed the `python3-pip` package you can install Ansible with `pip3`:
 
@@ -278,7 +279,7 @@ Following credentials definitions are required:
 + Template password-less sudoer (for provisioning)
 + `robops` sudoer (for alignment)
 + `ops` SSH sudoer (for additional roles)
-+ Private GIT cloner (for some roles, optional)
++ Private GIT user (for custom roles, optional)
 
 Configuration consists of YAML files in `credentials` directory (or symlink).
 

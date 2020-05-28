@@ -7,11 +7,11 @@ readme:         README.md
 authors:        wucenter at elias dot la
 description:    VMware vCenter Ubuntu VMs
 license:        [WTFPL, MIT]
-tags:           [vmware, vcenter, ubuntu, bionic, gitops, iac]
-documentation:  https://github.com/wucenter/wucenter
-repository:     https://github.com/wucenter/wucenter
-homepage:       https://github.com/wucenter/wucenter
-issues:         https://github.com/wucenter/wucenter/issues
+tags:           [vmware, vsphere, vcenter, ubuntu, bionic, iac, gitops]
+documentation:  https://github.com/wucenter/wucenter-ansible
+repository:     https://github.com/wucenter/wucenter-ansible
+homepage:       https://github.com/wucenter/wucenter-ansible
+issues:         https://github.com/wucenter/wucenter-ansible/issues
 dependencies:
   ansible.netcommon:  "*"
   community.general:  "*"
