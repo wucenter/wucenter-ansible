@@ -34,7 +34,7 @@
   when:
   - lookup('file', '{{ wucenter_basedir }}credentials/git.yml', errors='ignore')
   include_vars:
-    file:                       credentials/git.yml
+    file:                       "{{ wucenter_basedir }}credentials/git.yml"
 
 
 
@@ -62,7 +62,7 @@
   vars:
     first_found_args:
       files:                [ "{{ apps_item }}" ]
-      paths:                [ '{{ wucenter_basedir }}/roles' ]
+      paths:                [ "{{ wucenter_basedir }}/roles" ]
       errors:               ignore
   include_role:
     name:                   "{{ apps_item }}"
@@ -82,7 +82,7 @@
   vars:
     first_found_args:
       files:                [ "{{ galaxy_item }}" ]
-      paths:                [ '{{ wucenter_basedir }}/roles_galaxy' ]
+      paths:                [ "{{ wucenter_basedir }}/roles_galaxy" ]
       errors:               ignore
   include_role:
     name:                   "{{ galaxy_item }}"
