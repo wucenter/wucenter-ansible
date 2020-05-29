@@ -4,7 +4,7 @@ collections:
 - community.general
 
 galaxy_info:
-  description:          "WUcenter more books: audit"
+  description:          "WUcenter more roles: audit"
   author:               "wucenter at elias dot la"
   license:              "WTFPL, MIT"
   min_ansible_version:  2.9.6

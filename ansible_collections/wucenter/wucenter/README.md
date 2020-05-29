@@ -43,8 +43,8 @@
 - Template-based provisionning includes admins, SSH keys
 - Feature-rich YAML inventory format, with linting
 - Fine-grained automation features control, with `auto/*` tags
-- Tag-based roles management, with `apps/*` and `galaxy/*` tags
 - State auditing, inventory canonicalization
+- Tag-based in-house/galaxy roles management
 
 ### "Elastic" resources
 
@@ -64,8 +64,8 @@ Scale virtual hardware resources without rebooting:
 
 ### Additional roles management
 
-- Tags-based roles assignation
-- Ansible Galaxy supported, with auto-updates
+- Tag-based roles assignation, via `apps/*` and `galaxy/*` tags
+- Ansible Galaxy supported, with automatic updates
 
 ### Transparent Ansible Vault support
 
@@ -80,7 +80,7 @@ Scale virtual hardware resources without rebooting:
     + Python 3
     + Ansible version >=2.9.6
     + tested on Ubuntu bionic
-- Ubuntu bionic (18.04) VM template (not published yet)
+- Ubuntu bionic (18.04) VM template (use [wucenter-packer](https://github.com/wucenter/wucenter-packer))
     + static IP
     + password-less sudoer user
     + configured APT
@@ -110,6 +110,7 @@ mkdir inventory roles
 touch inventory/users.yml inventory/vms.yml
 ```
 
+See sister project [wucenter-packer](https://github.com/wucenter/wucenter-packer) to build your VM template.
 
 ## Getting started
 
@@ -556,6 +557,7 @@ User management is currently limited to two hard-coded groups:
 ## Roadmap
 
 - IP Assignation management
+- Build template from Ubuntu OVA with cloud-init intrumentation
 - Implement [DRS affinities](https://docs.ansible.com/ansible/latest/modules/vmware_vm_vm_drs_rule_module.html)
 - Minimal VM healthchecks
     - df root_fs
