@@ -1,3 +1,5 @@
+# TIP: docker build [ --build-arg PACKER_VERSION=X.Y.Z ] - < wucenter-github-master.Dockerfile
+
 # WUcenter Ansible framework: dependencies
 FROM ubuntu:18.04 AS wucenter-base
 RUN    apt-get update \
@@ -8,22 +10,21 @@ RUN    apt-get update \
     && cd /data
 WORKDIR /data
 
+# WUcenter Ansible framework: install from Github master
+FROM wucenter-base AS wucenter-ansible-master
+RUN    git clone --depth 1 https://github.com/wucenter/wucenter-ansible \
+    && find /data/wucenter-ansible -maxdepth 1 -not -name . -and \( -name ".*" -or -name README.md -or -name samples \) -exec rm -rfv {} \;
+
 # ALT
 # # WUcenter Ansible framework: install from Galaxy release
 # FROM wucenter-base AS wucenter-ansible-tagged
 # ARG WUCENTER_VERSION
 # RUN  ansible-galaxy collection install wucenter.wucenter:${WUCENTER_VERSION} -p wucenter-ansible
 
-# WUcenter Ansible framework: install from Github master
-FROM wucenter-base AS wucenter-ansible-master
-RUN  git clone --depth 1 https://github.com/wucenter/wucenter-ansible
-
 # WUcenter Ansible framework: setup Ansible workspace
-# ALT
-# FROM wucenter-ansible-tagged AS wucenter-ansible
+# ALT FROM wucenter-ansible-tagged AS wucenter-ansible
 FROM wucenter-ansible-master AS wucenter-ansible
 RUN    cd /data/wucenter-ansible \
-    && ls -la /data/wucenter-ansible  \
     && ansible_collections/wucenter/wucenter/wucenter_setup.sh
 WORKDIR /data/wucenter-ansible
 CMD ["books/apply.yml", "-vv"]

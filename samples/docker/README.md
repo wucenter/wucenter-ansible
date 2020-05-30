@@ -8,7 +8,7 @@ Currently, this repo ships Wucenter from Github master. Although, `Dockerfile` c
 
 [WUcenter Ansible framework](https://github.com/wucenter/wucenter-ansible) basedir is `/data/wucenter-ansible`, playbooks are installed in `/data/wucenter-ansible/books`.
 
-### Run
+### Configure
 
 - Create local WUcenter data directories `{credentials,inventory,roles}`.
 
@@ -25,7 +25,7 @@ docker run -ti \
 
 - Optional, put your custom roles to `roles`, and/or edit `roles/requirements.yml`
 
-- Finally run:
+### Run
 
 ``` bash
 docker run -ti \
