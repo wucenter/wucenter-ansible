@@ -495,7 +495,7 @@ Users directory can be easily extended for custom roles.
 User management is currently limited to two hard-coded groups:
 
 1. `robops`, robots, password-less sudoers, NOT AUTHORIZED to connect over SSH
-1. `ops`, human Ops, sudoers, MUST setup SSH key(s) to access VM
+1. `ops`, robots/ops, sudoers, MUST setup SSH key(s) to access VM
 
 
 | Main playbooks     | `robops` | `ops` |
@@ -517,7 +517,11 @@ User management is currently limited to two hard-coded groups:
 
 #### Users directory Spec
 
-- Declare `users` dictionary in `inventory/users.yml`:
+- Declare `users` dictionary in `inventory/users.yml`
+
+`users` dictionary keys represent the username
+
+Follow the following dictionary format for user attributes:
 
 | User spec    | Description                                                 |
 | :----------- | :-------------------------                                  |
@@ -527,13 +531,20 @@ User management is currently limited to two hard-coded groups:
 | `user_keys`  | LIST[DICT] SSH Keys Specs                                   |
 | `user_state` | STRING OPTIONAL Set to `absent` to remove user              |
 
+
 - `user_keys` dictionaries attributes:
 
 | Key spec     | Description                                   |
 | :----------- | :-------------------------                    |
-| `ssh_rsa`    | STRING SSH Public key                         |
+| `ssh_rsa`    | STRING SSH RSA public key                     |
 | `comment`    | STRING OPTIONAL                               |
 | `state`      | STRING OPTIONAL Set to `absent` to remove key |
+
+To generate a RSA key pair:
+
+``` bash
+ssh-keygen -t rsa -b 4096 -a 100 -N '' -f NEW_id_rsa`
+```
 
 - Supported `user_tags`:
 
