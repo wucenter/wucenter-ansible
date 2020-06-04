@@ -42,7 +42,7 @@
 
 
 - set_fact:
-    scan_cache_vm: "{{ scan_vm | combine( { 'vm_auto': (cache_vm.vm_auto | default('[]') ), 'vm_roles': (cache_vm.vm_roles | default('[]') ), 'vm_vars': (cache_vm.vm_vars | default('{}') ) } ) }}"
+    scan_cache_vm: "{{ scan_vm | default({}) | combine( { 'vm_auto': (cache_vm.vm_auto | default('[]') ), 'vm_roles': (cache_vm.vm_roles | default('[]') ), 'vm_vars': (cache_vm.vm_vars | default('{}') ) } ) }}"
 
 
 - name: Local   | Scanned state

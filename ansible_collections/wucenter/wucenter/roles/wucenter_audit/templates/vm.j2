@@ -32,6 +32,6 @@ vm_vars:{% if vm_spec.vm_vars | length == 0 %}          {}
 {% else %}
 
 {% for vm_var in vm_spec.vm_vars | default({}) | dictsort %}
-  {{ '%-16s' | format(vm_var[0]|string + ':') }}{{ vm_var[1] | to_nice_yaml | regex_replace('\.\.\.$', '') | trim }}
+  {{ '%-15s' | format(vm_var[0]|string + ':') }} {{ vm_var[1] | to_nice_yaml | regex_replace('\.\.\.$', '') | trim }}
 {% endfor %}
 {% endif %}
