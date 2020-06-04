@@ -31,8 +31,7 @@
 
 - name: Vars    | GIT credentials
   no_log:                       true
-  when:
-  - lookup('file', '{{ wucenter_basedir }}credentials/git.yml', errors='ignore')
+  ignore_errors:                true
   include_vars:
     file:                       "{{ wucenter_basedir }}credentials/git.yml"
 
