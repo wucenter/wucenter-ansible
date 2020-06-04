@@ -32,8 +32,8 @@
 
 - name: Role    | Bury VM specs
   when:
-  - scan_bury.skipped is defined
-  - scan_bury.skipped
+  - scan_info.skipped is defined
+  - not scan_info.skipped
   vars:
     bury_spec_dict: scan_vm
   include_role:
