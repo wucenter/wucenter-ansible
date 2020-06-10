@@ -5,8 +5,8 @@
 
 - block:
 
-  - import_tasks:                 wucenter_init_ip.yml
-  - import_tasks:                 wucenter_init_glue.yml
-  - import_tasks:                 check_vars.yml
+  - import_tasks:               wucenter_init_ip.yml
+  - import_tasks:               wucenter_init_glue.yml
+  - import_tasks:               check_vars.yml
 
   when: ( state is not defined ) or ( state != 'absent' )

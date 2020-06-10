@@ -63,4 +63,4 @@
 
 
 - include_role:
-    name:       wucenter_bury_spec
+    name:         wucenter_bury_spec
