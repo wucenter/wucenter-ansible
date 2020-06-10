@@ -2,6 +2,11 @@
 
 <div align="center"><p align="center"><img src="https://raw.githubusercontent.com/wucenter/wucenter-branding/master/wucenter_logo_rect.png" title="WUcenter logo"></p></div>
 <div align="center"><p align="center">Ansible framework for managing Ubuntu virtual machines on VMware vCenter</p></div>
+<div align="center"><p align="center">
+<a href="https://github.com/wucenter/wucenter-ansible"><img src="https://img.shields.io/badge/dynamic/json?label=Github%20Repo&logo=github&labelColor=4078C0&logoColor=FFFFFF&color=888888&style=for-the-badge&url=https%3A%2F%2Fapi.github.com%2Frepos%2Fwucenter%2Fwucenter-ansible%2Ftags&query=%24%5B0%5D.name"/></a>
+<a href="https://galaxy.ansible.com/wucenter/wucenter"><img src="https://img.shields.io/badge/dynamic/json?label=Ansible%20Galaxy&logo=ansible&labelColor=CC0000&logoColor=FFFFFF&color=888888&style=for-the-badge&query=latest_version.version&url=https%3A%2F%2Fgalaxy.ansible.com%2Fapi%2Fv2%2Fcollections%2Fwucenter%2Fwucenter%2F%3Fformat%3Djson"/></a>
+<a href="https://hub.docker.com/r/wucenter/wucenter"><img src="https://img.shields.io/badge/dynamic/json?label=Docker%20Hub&logo=docker&labelColor=0DB7ED&logoColor=FFFFFF&color=888888&style=for-the-badge&url=https%3A%2F%2Fhub.docker.com%2Fv2%2Frepositories%2Fwucenter%2Fwucenter%2Ftags%2F&query=results%5B-1%3A%5D.name"/></a>
+</p></div>
 
 <!-- MarkdownTOC autolink="true" style="unordered" -->
 
@@ -381,7 +386,7 @@ ansible-vault encrypt_string --name 'git_pass' 's3(r3t' --vault-password-file cr
 
 - Decrypt vault single variable
 ``` bash
-ansible localhost -m debug -a var='git_pass' -e "@credentials/git.yml" --vault-password-file credentials/VAULT_PASS
+ansible localhost -m debug -a var='git_pass' -e '@credentials/git.yml' --vault-password-file credentials/VAULT_PASS
 ```
 
 ### VMs Inventory

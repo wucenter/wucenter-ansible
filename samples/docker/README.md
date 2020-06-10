@@ -43,7 +43,9 @@ docker run -ti \
 
 ### Build
 
-You can select a different Hashicorp Packer version at build time: `--build-arg PACKER_VERSION=1.5.2`.
+You can configure Hashicorp Packer version at build time: `docker build --build-arg PACKER_VERSION=1.5.2`.
+
+See [Packer release listing](https://releases.hashicorp.com/packer/) to check latest version.
 
 ### Run
 
@@ -59,5 +61,7 @@ docker run -ti \
         -var "BUILD_DATE=$( date --rfc-3339=seconds )" \
         -var "BUILD_USER=$USER" \
         -var 'VERSION=1.1' \
+        -var 'VMW_FOLDER=_TEMPLATES' \
+        -var 'NAME=ubuntu-bionic_' \
         ubuntu-bionic.vcenter.json
 ```
