@@ -37,17 +37,21 @@
 
 
 
-- name: Checks  | Check host is SSH reachable
+- name: Checks  | Check host is SSH reachable and rootable
   ignore_unreachable:       true
   changed_when:             false
   register:                 check_ssh_reachable
+  become:                   true
   command:                  # DOC https://docs.ansible.com/ansible/latest/modules/command_module.html
-    cmd:                    uname
+    cmd:                    id -u
 - name: Checks  | Unreachable
   when:                     check_ssh_reachable is not reachable
   fail:
     msg:                    "Unreachable ssh://{{ ops_user }}@{{ ansible_host }}"
-
+- name: Checks  | Unrootable
+  when:                     (check_ssh_reachable.stdout is not defined) or (check_ssh_reachable.stdout|int != 0)
+  fail:
+    msg:                    "Unrootable ssh://{{ ops_user }}@{{ ansible_host }}"
 
 
 - name: Roles   | Import apps/ tagged roles
