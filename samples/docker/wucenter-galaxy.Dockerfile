@@ -11,12 +11,12 @@ RUN    apt-get update \
 WORKDIR /data
 
 # WUcenter Ansible framework: install from Galaxy release
-FROM wucenter-base AS wucenter-ansible-tagged
+FROM wucenter-base AS wucenter-ansible-galaxy
 ARG WUCENTER_VERSION
 RUN ansible-galaxy collection install wucenter.wucenter:${WUCENTER_VERSION} -p wucenter-ansible
 
 # WUcenter Ansible framework: setup Ansible workspace
-FROM wucenter-ansible-tagged AS wucenter-ansible
+FROM wucenter-ansible-galaxy AS wucenter-ansible
 RUN    cd /data/wucenter-ansible \
     && ansible_collections/wucenter/wucenter/wucenter_setup.sh
 WORKDIR /data/wucenter-ansible

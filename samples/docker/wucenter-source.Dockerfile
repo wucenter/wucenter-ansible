@@ -1,4 +1,4 @@
-# TIP: docker build [ --build-arg PACKER_VERSION=X.Y.Z ] - < samples/docker/wucenter-docker.Dockerfile
+# TIP: docker build [ --build-arg PACKER_VERSION=X.Y.Z ] - < samples/docker/wucenter-source.Dockerfile
 
 # WUcenter Ansible framework: dependencies
 FROM ubuntu:18.04 AS wucenter-base
@@ -11,12 +11,12 @@ RUN    apt-get update \
 WORKDIR /data
 
 # WUcenter Ansible framework: install from Docker COPY
-FROM wucenter-base AS wucenter-ansible-docker
+FROM wucenter-base AS wucenter-ansible-source
 COPY ansible_collections wucenter-ansible/ansible_collections
 
 
 # WUcenter Ansible framework: setup Ansible workspace
-FROM wucenter-ansible-docker AS wucenter-ansible
+FROM wucenter-ansible-source AS wucenter-ansible
 RUN    cd /data/wucenter-ansible \
     && ansible_collections/wucenter/wucenter/wucenter_setup.sh
 WORKDIR /data/wucenter-ansible
