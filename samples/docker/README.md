@@ -58,10 +58,8 @@ docker run -ti \
     wucenter/wucenter \
     packer build -force -on-error=cleanup \
         -var-file=config/vcenter.json \
-        -var "BUILD_DATE=$( date --rfc-3339=seconds )" \
-        -var "BUILD_USER=$USER" \
+        -var 'NAME=ubuntu-bionic_' \
         -var 'VERSION=1.1' \
         -var 'VMW_FOLDER=_TEMPLATES' \
-        -var 'NAME=ubuntu-bionic_' \
         ubuntu-bionic.vcenter.json
 ```
