@@ -3,7 +3,7 @@
 # WUcenter Ansible framework: dependencies
 FROM ubuntu:18.04 AS wucenter-base
 RUN    apt-get update \
-    && apt-get install -y --no-install-recommends unzip git python3-pip python3-setuptools iproute2 \
+    && apt-get install -y --no-install-recommends unzip git python3-pip python3-setuptools iproute2 openssh-client \
     && rm -rf /var/lib/apt/lists/* \
     && pip3 install --no-cache-dir ansible \
     && mkdir -p /data \
