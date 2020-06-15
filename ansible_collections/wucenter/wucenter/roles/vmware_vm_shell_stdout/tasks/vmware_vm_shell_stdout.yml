@@ -4,10 +4,8 @@
 
   - name: "vSphere | Run shell command: {% if (vmware_vm_shell_stdout_lab is defined) and (vmware_vm_shell_stdout_lab | length > 0) %}{{ vmware_vm_shell_stdout_lab }}{% else %}{{ vmware_vm_shell_stdout_bin | regex_replace('^(.*/)?([^/]+)$', '\\2') }}{% endif %}"
     delegate_to:                    localhost
-    changed_when:                   vmware_vm_shell_stdout_cro|default(false)
+    changed_when:                   vmware_vm_shell_stdout_cro is not defined or not vmware_vm_shell_stdout_cro
     register:                       vmware_vm_shell_stdout_info
-    # vars:
-    #   vmware_vm_shell_stdout_info:  "{{ vmware_vm_shell_stdout_info | default('info') }}"
     vmware_vm_shell:                # DOC https://docs.ansible.com/ansible/latest/modules/vmware_vm_shell_module.html
       wait_for_process:             true
       validate_certs:               false
@@ -51,7 +49,7 @@
       "{{ vmware_vm_shell_stdout_var }}": "{{ lookup('file', vmware_vm_shell_stdout_tmp) | from_yaml }}"
 
   - name: Facts   | Parse stdout var
-    when: ! ( vmware_vm_shell_stdout_yml | default(false) | bool )
+    when: not ( vmware_vm_shell_stdout_yml | default(false) | bool )
     set_fact: # DEV Configurable output var receives RAW data
       "{{ vmware_vm_shell_stdout_var }}": "{{ lookup('file', vmware_vm_shell_stdout_tmp) }}"
 
@@ -88,6 +86,7 @@
 
   - name: "Facts   | Register {{ vmware_vm_shell_stdout_reg }}"
     when:
+    - vmware_vm_shell_stdout_reg is defined
     - vmware_vm_shell_stdout_reg is not none
     - vmware_vm_shell_stdout_reg | trim | length != 0
     set_fact:
