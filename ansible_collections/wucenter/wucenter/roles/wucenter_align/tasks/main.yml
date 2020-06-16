@@ -14,12 +14,12 @@
     - scan_native.instance is defined
     - scan_native.instance.hw_power_status != 'poweredOn'
     import_role:
-      name:         wucenter_provision
-      tasks_from:   provision_power-on.yml
+      name:       wucenter_provision
+      tasks_from: provision_power-on.yml
 
 
   - name: Tasks   | Re-scan awaked VM
-    when:          boot.changed is defined and boot.changed
+    when:         boot.changed is defined and boot.changed
     include_role:
       name:       wucenter_scan_mini
 

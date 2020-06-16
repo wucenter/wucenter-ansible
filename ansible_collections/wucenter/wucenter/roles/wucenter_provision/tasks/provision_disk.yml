@@ -43,3 +43,4 @@
          sudo tee /sys/block/$ID/device/rescan <<<1 \
       && sudo fdisk $DISK < <( echo -en "d\nn\np\n\n\n\nn\nw\n" ) \
       && sudo resize2fs $PART'
+    # TIP: ON debian partprobe before resize2fs
