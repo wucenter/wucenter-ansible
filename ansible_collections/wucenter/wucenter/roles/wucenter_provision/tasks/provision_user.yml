@@ -174,7 +174,7 @@
   when:
   - users[user_item].user_state is not defined or ( users[user_item].user_state != 'absent' )
   - users[user_item].user_tags | default({}) | intersect(['ops', 'robops'])
-  - users[user_item].user_hash | length >0
+  - users[user_item].user_hash | string | length >0
   vmware_vm_shell:              # DOC https://docs.ansible.com/ansible/latest/modules/vmware_vm_shell_module.html
     wait_for_process:           true
     validate_certs:             false
