@@ -9,6 +9,7 @@
     when: ( wucenter_basedir is not defined ) or ( lookup('fileglob', wucenter_basedir+'/ansible.cfg') | trim == '' )
     fail:
       msg: "Missing required configuration variable: wucenter_basedir"
+  - setup:
 
 
 

@@ -3,13 +3,6 @@
 # DOC: Manage VM defaults
 
 
-- name: Local   | Control plane
-  delegate_to: localhost
-  run_once: true
-  setup:
-
-
-
 - name: Facts   | Control plane
   set_fact:
-    controlhost_ip:             "{{ ansible_default_ipv4.address }}"  # DEV requires localhost facts gathering by setup module
+    controlhost_ip:             "{{ hostvars.localhost.ansible_default_ipv4.address }}"  # DEV requires localhost facts gathering by setup module
