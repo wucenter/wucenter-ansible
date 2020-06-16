@@ -63,5 +63,8 @@
   - not scan_native.failed
 
 
-- include_role:
+- when:
+  - new_vm.instance is not defined
+  - not scan_native.failed
+  include_role:
     name:         wucenter_bury_spec
