@@ -60,6 +60,7 @@
   when:
   - ( state is not defined ) or ( state != 'absent' )
   - new_vm.instance is not defined
+  - not scan_native.failed
 
 
 - include_role:

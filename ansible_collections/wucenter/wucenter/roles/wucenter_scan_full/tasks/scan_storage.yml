@@ -13,7 +13,7 @@
     hostname:                   "{{ vcenter_host }}"
     datacenter:                 "{{ vcenter_dc }}"
     name:                       "{{ vm_name }}"
-    folder:                     "{{ vm_folder }}"
+    # folder:                     "{{ vm_folder }}"
 
 
 
