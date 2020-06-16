@@ -51,7 +51,7 @@
 - name: Facts   | Parse Swap info 2/2
   set_fact:
     temp_vm:
-      vm_swap:                  0
+      vm_swap:                  "0"
   when:
   - (disk_info is none) or ('guest_disk_info' not in disk_info) or ('1' not in disk_info.guest_disk_info)
 
