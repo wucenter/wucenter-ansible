@@ -109,8 +109,8 @@ Then create WUcenter workspace:
 mkdir workspace
 cd workspace
 ansible-galaxy collection install wucenter.wucenter -p ./
-ansible_collections/wucenter/wucenter/wucenter_setup.yml
-ansible_collections/wucenter/wucenter/wucenter_creds.yml
+ansible_collections/wucenter/wucenter/wucenter_setup.sh
+ansible_collections/wucenter/wucenter/wucenter_creds.sh
 mkdir inventory roles
 touch inventory/users.yml inventory/vms.yml
 ```

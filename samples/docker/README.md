@@ -4,7 +4,7 @@
 
 ## WUcenter framework
 
-Currently, this repo ships Wucenter from Github master. Although, `Dockerfile` can be simply adapted to pull from Ansible Galaxy tagged releases.
+Currently, this repo ships WUcenter from Github master. Although, several `Dockerfile`s are [provided](https://github.com/wucenter/wucenter-ansible/tree/master/samples/docker), such as one to pull from Ansible Galaxy tagged releases.
 
 [WUcenter Ansible framework](https://github.com/wucenter/wucenter-ansible) basedir is `/data/wucenter-ansible`, playbooks are installed in `/data/wucenter-ansible/books`.
 
