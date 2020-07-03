@@ -4,7 +4,7 @@
 
 - name: Facts   | Init audit variables
   set_fact:
-    audit_path: "{{ AUDIT_PATH | default('../audit_{{ ansible_date_time.date }}_{{ ansible_date_time.time }}') }}"
+    audit_path: "{{ AUDIT_PATH | default('../audit_{{ lookup('pipe','TZ=UTC date +%Y-%m-%d_%H:%M:%S') }}') }}"
     audit_head: "{{ '%Y-%m-%d %H:%M:%S %Z' | strftime }} {{ ansible_user | default(lookup('env', 'USER', errors='ignore')) | default('unknown_user') }}@{{ controlhost_ip | default('unknown_host') }}"
 
 
