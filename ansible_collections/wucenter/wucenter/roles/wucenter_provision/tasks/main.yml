@@ -10,6 +10,8 @@
 
   - import_tasks: provision_vm.yml
 
+  - import_tasks: provision_robops.yml
+  
   - import_tasks: provision_net.yml
 
   - import_tasks: provision_hostname.yml
@@ -22,7 +24,7 @@
     when:
     - vm_swap > 0
 
-  - import_tasks: provision_user.yml
+  - import_tasks: provision_ops.yml
 
   - import_tasks: provision_ssh.yml
 

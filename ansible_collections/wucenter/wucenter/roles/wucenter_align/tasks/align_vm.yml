@@ -104,24 +104,33 @@
 - name: "Tasks   | Align NET: hostname"
   when:
   - vm_name != scan_vm.vm_name
-  - vm_auto | default({}) | intersect(['auto', 'auto/all', 'auto/net', 'auto/hostname'])
+  - vm_auto | default([]) | intersect(['auto', 'auto/all', 'auto/net', 'auto/hostname'])
   import_tasks:   align_hostname.yml
 
 
 
-- name: "Role    | Align Ops/Robops users"
+- name: "Role    | Align Robops users"
   when:
-  - vm_auto | default({}) | intersect(['auto', 'auto/all', 'auto/user'])
+  - vm_auto | default([]) | intersect(['auto', 'auto/all', 'auto/user'])
   import_role:
     name:         wucenter_provision
-    tasks_from:   provision_user.yml
+    tasks_from:   provision_robops.yml
+
+
+
+- name: "Role    | Align Ops users"
+  when:
+  - vm_auto | default([]) | intersect(['auto', 'auto/all', 'auto/user'])
+  import_role:
+    name:         wucenter_provision
+    tasks_from:   provision_ops.yml
 
 
 
 - name: "Tasks   | Align Ops/Robops SSH keys"
   when:
-  - vm_auto | default({}) | intersect(['auto', 'auto/all', 'auto/user'])
-  - vm_auto | default({}) | intersect(['auto', 'auto/all', 'auto/net', 'auto/ssh'])
+  - vm_auto | default([]) | intersect(['auto', 'auto/all', 'auto/user'])
+  - vm_auto | default([]) | intersect(['auto', 'auto/all', 'auto/net', 'auto/ssh'])
   import_tasks:   align_ssh.yml
 
 
@@ -129,7 +138,7 @@
 - name: "Role    | Power off"
   when:
   - not vm_power|bool
-  - vm_auto | default({}) | intersect(['auto', 'auto/all', 'auto/hw', 'auto/power'])
+  - vm_auto | default([]) | intersect(['auto', 'auto/all', 'auto/hw', 'auto/power'])
   import_role:
     name:         wucenter_provision
     tasks_from:   provision_power-off.yml
