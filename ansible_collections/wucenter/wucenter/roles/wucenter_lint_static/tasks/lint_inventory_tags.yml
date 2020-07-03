@@ -1,7 +1,7 @@
 ---
 
 - name: Checks  | vm_auto (auto/)
-  loop:                         "{{ vm_auto | default({}) | select('match', '^auto/') | list }}"
+  loop:                         "{{ vm_auto | default([]) | select('match', '^auto/') | list }}"
   loop_control:
     loop_var:                   auto_item
   when:                         auto_item not in tags_auto
@@ -12,7 +12,7 @@
 
 - name: Checks  | vm_roles (apps/)
   when:                         not lookup('first_found', first_found_args, errors='ignore')
-  loop:                         "{{ vm_roles | default({}) | select('match', '^apps/') | map('regex_replace', '^apps/', '') | list }}"
+  loop:                         "{{ vm_roles | default([]) | select('match', '^apps/') | map('regex_replace', '^apps/', '') | list }}"
   loop_control:
     loop_var:                   apps_item
   vars:
@@ -26,7 +26,7 @@
 
 - name: Checks  | vm_roles (galaxy/)
   when:                         not lookup('first_found', first_found_args, errors='ignore')
-  loop:                         "{{ vm_roles | default({}) | select('match', '^galaxy/') | map('regex_replace', '^galaxy/', '') | list }}"
+  loop:                         "{{ vm_roles | default([]) | select('match', '^galaxy/') | map('regex_replace', '^galaxy/', '') | list }}"
   loop_control:
     loop_var:                   galaxy_item
   vars:
@@ -39,8 +39,8 @@
 
 
 - name: Checks  | vm_auto (allowed)
-  loop: "{{ vm_auto | default({}) | select('match', '^(?!auto/)') | list }}"
-  # loop: "{{ vm_auto | default({}) | select('match', '^(?!(apps|auto|galaxy|roles)/)') | list }}"
+  loop: "{{ vm_auto | default([]) | select('match', '^(?!auto/)') | list }}"
+  # loop: "{{ vm_auto | default([]) | select('match', '^(?!(apps|auto|galaxy|roles)/)') | list }}"
   loop_control:
     loop_var:                   allowed_item
   when:                         allowed_item not in tags_allowed

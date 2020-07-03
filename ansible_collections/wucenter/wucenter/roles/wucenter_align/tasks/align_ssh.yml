@@ -6,7 +6,7 @@
   - value.user_keys
   - skip_missing: True
   when:
-  - item.0.user_tags | default({}) | intersect(['ops', 'robops'])
+  - item.0.user_tags | default([]) | intersect(['ops', 'robops'])
   - ( item.0.value.user_state is not defined) or ( item.0.value.user_state != 'absent' )
   - item.1.state is defined
   - item.1.state == 'absent'
@@ -27,7 +27,7 @@
   - skip_missing: True
   when:
   - ( item.0.value.user_state is not defined) or ( item.0.value.user_state != 'absent' )
-  - item.0.user_tags | default({}) | intersect(['ops', 'robops'])
+  - item.0.user_tags | default([]) | intersect(['ops', 'robops'])
   - ( item.1.state is not defined ) or ( item.1.state != 'absent' )
   - item.1.ssh_rsa is defined
   - item.1.ssh_rsa | length >0

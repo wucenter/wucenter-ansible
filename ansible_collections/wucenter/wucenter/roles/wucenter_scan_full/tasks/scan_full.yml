@@ -4,7 +4,7 @@
 - name: Facts   | Dig up buried scan
   register: scan_bury
   when:
-  - vm_auto | default({}) | intersect(['auto', 'auto/all', 'auto/manage', 'auto/bury'])
+  - vm_auto | default([]) | intersect(['auto', 'auto/all', 'auto/manage', 'auto/bury'])
   - lookup('env', 'NO_DIG') | length == 0
   - cache_vm is defined
   - cache_vm.ansible_fail is defined

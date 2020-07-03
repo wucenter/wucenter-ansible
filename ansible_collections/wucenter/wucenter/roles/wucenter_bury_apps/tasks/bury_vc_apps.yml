@@ -6,7 +6,7 @@
   changed_when:                 false
   when:
   - ( state is not defined ) or ( state != 'absent' )
-  - vm_auto | default({}) | intersect(['auto', 'auto/all', 'auto/manage', 'auto/bury'])
+  - vm_auto | default([]) | intersect(['auto', 'auto/all', 'auto/manage', 'auto/bury'])
   vars:
     vm_spec:                  # DEV: Note leading whitespace in else clause to WORKAROUND pyVmomi unserializing YAML-serialized empty dicts/lists
     - name:                   vm_roles

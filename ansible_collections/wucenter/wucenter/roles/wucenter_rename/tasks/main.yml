@@ -24,4 +24,4 @@
   - scan_native.instance.hw_product_uuid is defined
   - scan_native.instance.hw_product_uuid is not none
   - scan_native.instance.hw_product_uuid | trim | length != 0
-  - vm_auto | default({}) | intersect(['auto', 'auto/all', 'auto/manage', 'auto/rename'])
+  - vm_auto | default([]) | intersect(['auto', 'auto/all', 'auto/manage', 'auto/rename'])

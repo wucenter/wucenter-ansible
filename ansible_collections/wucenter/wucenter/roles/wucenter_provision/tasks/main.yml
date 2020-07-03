@@ -44,7 +44,7 @@
 
   when:
   - ( state is not defined ) or ( state != 'absent' )
-  - vm_auto | default({}) | intersect(['auto', 'auto/all', 'auto/manage', 'auto/provision'])
+  - vm_auto | default([]) | intersect(['auto', 'auto/all', 'auto/manage', 'auto/provision'])
   - scan_native.failed
   - (vm_rename is not defined) or (vm_rename | trim | length == 0)
 

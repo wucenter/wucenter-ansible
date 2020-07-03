@@ -11,5 +11,5 @@
 
   when:
   - ( state is not defined ) or ( state != 'absent' )
-  - vm_auto | default({}) | intersect(['auto', 'auto/all', 'auto/manage', 'auto/bury'])
+  - vm_auto | default([]) | intersect(['auto', 'auto/all', 'auto/manage', 'auto/bury'])
   - lookup('env', 'NO_BURY') | length == 0

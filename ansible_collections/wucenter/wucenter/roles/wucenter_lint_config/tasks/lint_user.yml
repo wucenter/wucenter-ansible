@@ -21,14 +21,14 @@
 
   - name: Checks  | Ops and Robops must have user_hash
     when:
-    - user.value.user_tags | default({}) | intersect(['ops', 'robops'])
+    - user.value.user_tags | default([]) | intersect(['ops', 'robops'])
     - (user.value.user_hash is not defined) or (user.value.user_hash | trim | length == 0)
     fail:
       msg: "Missing user_hash for Rob/Ops user '{{ user.key }}'"
 
   - name: Checks  | Ops must have valid user_keys
     when:
-    - user.value.user_tags | default({}) | intersect(['ops'])
+    - user.value.user_tags | default([]) | intersect(['ops'])
     - user.value.user_keys is not defined
     - (user.value.user_keys is string) or (user.value.user_keys is mapping) or (user.value.user_keys is not sequence)
     - user.value.user_keys | default([]) | selectattr('ssh_rsa', 'ne', '') | selectattr('state', 'ne', 'absent') | list | length >1

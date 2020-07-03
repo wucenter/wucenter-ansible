@@ -6,7 +6,7 @@
   - scan_vm.vm_folder is not none
   - scan_vm.vm_folder | trim | length != 0
   - scan_vm.vm_folder != vm_folder
-  - vm_auto | default({}) | intersect(['auto', 'auto/all', 'auto/data', 'auto/folder'])
+  - vm_auto | default([]) | intersect(['auto', 'auto/all', 'auto/data', 'auto/folder'])
   import_role:
     name:         wucenter_align
     tasks_from:   align_folder.yml

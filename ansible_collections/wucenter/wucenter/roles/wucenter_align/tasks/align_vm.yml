@@ -4,7 +4,7 @@
 - name: "Tasks   | Align folder"
   when:
   - vm_folder != scan_vm.vm_folder
-  - vm_auto | default({}) | intersect(['auto', 'auto/all', 'auto/data', 'auto/folder'])
+  - vm_auto | default([]) | intersect(['auto', 'auto/all', 'auto/data', 'auto/folder'])
   import_tasks:   align_folder.yml
 
 
@@ -12,7 +12,7 @@
 - name: "Tasks   | Align HW: reserved RAM"
   when:
   - vm_ram_reserved|bool != scan_vm.vm_ram_reserved|bool
-  - vm_auto | default({}) | intersect(['auto', 'auto/all', 'auto/hw', 'auto/hwflags', 'auto/ram_reserved'])
+  - vm_auto | default([]) | intersect(['auto', 'auto/all', 'auto/hw', 'auto/hwflags', 'auto/ram_reserved'])
   import_tasks:   align_ram_reserved.yml
 
 
@@ -20,7 +20,7 @@
 - name: "Tasks   | Align HW: hotplug"
   when:
   - vm_hotplug|bool != scan_vm.vm_hotplug|bool
-  - vm_auto | default({}) | intersect(['auto', 'auto/all', 'auto/hw', 'auto/hwflags', 'auto/hotplug'])
+  - vm_auto | default([]) | intersect(['auto', 'auto/all', 'auto/hw', 'auto/hwflags', 'auto/hotplug'])
   import_tasks:   align_hotplug.yml
 
 
@@ -28,7 +28,7 @@
 - name: "Tasks   | Align HW: CPUs"
   when:
   - vm_cpu|int > scan_vm.vm_cpu|int
-  - vm_auto | default({}) | intersect(['auto', 'auto/all', 'auto/hw', 'auto/cpu'])
+  - vm_auto | default([]) | intersect(['auto', 'auto/all', 'auto/hw', 'auto/cpu'])
   - vm_hotplug
   # TODO hotplug related test
   import_tasks:   align_cpu.yml
@@ -38,7 +38,7 @@
 - name: "Tasks   | Align HW: RAM"
   when:
   - vm_ram|int > scan_vm.vm_ram|int
-  - vm_auto | default({}) | intersect(['auto', 'auto/all', 'auto/hw', 'auto/memory'])
+  - vm_auto | default([]) | intersect(['auto', 'auto/all', 'auto/hw', 'auto/memory'])
   - vm_hotplug
   # TODO hotplug related test
   import_tasks:   align_ram.yml
@@ -48,7 +48,7 @@
 - name: "Tasks   | Align DATA: datastore"
   when:
   - vm_datastore != scan_vm.vm_datastore
-  - vm_auto | default({}) | intersect(['auto', 'auto/all', 'auto/data', 'auto/datastore'])
+  - vm_auto | default([]) | intersect(['auto', 'auto/all', 'auto/data', 'auto/datastore'])
   import_tasks:   align_datastore.yml
 
 
@@ -56,7 +56,7 @@
 - name: "Role    | Align DATA: root Disk"
   when:
   - vm_disk|int > scan_vm.vm_disk|int
-  - vm_auto | default({}) | intersect(['auto', 'auto/all', 'auto/data', 'auto/disk'])
+  - vm_auto | default([]) | intersect(['auto', 'auto/all', 'auto/data', 'auto/disk'])
   import_role:
     name:         wucenter_provision
     tasks_from:   provision_disk.yml
@@ -68,7 +68,7 @@
 - name: "Role    | Align DATA: swap Disk"
   when:
   - vm_swap|int > scan_vm.vm_swap|int
-  - vm_auto | default({}) | intersect(['auto', 'auto/all', 'auto/data', 'auto/swap'])
+  - vm_auto | default([]) | intersect(['auto', 'auto/all', 'auto/data', 'auto/swap'])
   import_role:
     name:         wucenter_provision
     tasks_from:   provision_swap.yml
@@ -78,14 +78,14 @@
 - name: "Tasks   | Align NET: network"
   when:
   - vm_network != scan_vm.vm_network
-  - vm_auto | default({}) | intersect(['auto', 'auto/all', 'auto/net', 'auto/network'])
+  - vm_auto | default([]) | intersect(['auto', 'auto/all', 'auto/net', 'auto/network'])
   import_tasks:   align_network.yml
 
 
 
 - name: "Role    | Align NET: netconf"
   when: |
-    vm_auto | default({}) | intersect(['auto', 'auto/all', 'auto/net', 'auto/netconf'])
+    vm_auto | default([]) | intersect(['auto', 'auto/all', 'auto/net', 'auto/netconf'])
     and vm_net_ip  != 'ERROR'
     and vm_net_ns1 != 'ERROR'
     and (

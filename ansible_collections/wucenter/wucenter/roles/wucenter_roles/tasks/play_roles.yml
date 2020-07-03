@@ -57,9 +57,9 @@
 - name: Roles   | Import apps/ tagged roles
   when:
     - ( state is not defined ) or ( state != 'absent' )
-    - vm_auto | default({}) | intersect(['auto', 'auto/all', 'auto/manage', 'auto/roles'])
+    - vm_auto | default([]) | intersect(['auto', 'auto/all', 'auto/manage', 'auto/roles'])
     - lookup('first_found', first_found_args)
-  loop:                     "{{ vm_roles | default({}) | select('match', '^apps/') | map('regex_replace', '^apps/', '') | list }}"
+  loop:                     "{{ vm_roles | default([]) | select('match', '^apps/') | map('regex_replace', '^apps/', '') | list }}"
   loop_control:
     loop_var:               apps_item
   vars:
@@ -77,9 +77,9 @@
 - name: Roles   | Import galaxy/ tagged roles
   when:
     - ( state is not defined ) or ( state != 'absent' )
-    - vm_auto | default({}) | intersect(['auto', 'auto/all', 'auto/manage', 'auto/roles'])
+    - vm_auto | default([]) | intersect(['auto', 'auto/all', 'auto/manage', 'auto/roles'])
     - lookup('first_found', first_found_args)
-  loop:                     "{{ vm_roles | default({}) | select('match', '^galaxy/') | map('regex_replace', '^galaxy/', '') | list }}"
+  loop:                     "{{ vm_roles | default([]) | select('match', '^galaxy/') | map('regex_replace', '^galaxy/', '') | list }}"
   loop_control:
     loop_var:               galaxy_item
   vars:

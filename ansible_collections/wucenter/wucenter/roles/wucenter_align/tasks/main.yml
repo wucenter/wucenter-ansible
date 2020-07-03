@@ -9,7 +9,7 @@
 
   - name: Role    | Power-on VM
     when:
-    - vm_auto | default({}) | intersect(['auto', 'auto/all', 'auto/hw', 'auto/power'])
+    - vm_auto | default([]) | intersect(['auto', 'auto/all', 'auto/hw', 'auto/power'])
     - vm_power|bool
     - scan_native.instance is defined
     - scan_native.instance.hw_power_status != 'poweredOn'
