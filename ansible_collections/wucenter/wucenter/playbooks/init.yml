@@ -28,16 +28,20 @@
 
 
 
-# TODO create dedicated role: init_
+# TODO create dedicated role: init_inventory
 - name: Init Inventory
-  hosts:                        localhost,vms  # DEV: for pushing `ansible_play_hosts_all` into localhost hostvars
+  hosts:                        localhost,vms  # DEV: for pushing `inventory_vm_*` into localhost hostvars
   gather_facts:                 false
-  # collections:
-  # - community.general  # TOCHECK json_query
+  serial:                       1  # DEV HACK: localhost accumulator
   tasks:
   - name: Facts   | Inventory Names & IPs
-    run_once: true
-    set_fact:
-      inventory_vm_names:       "{{ ansible_play_hosts_all | reject('==', 'localhost') | map('extract', hostvars, []) | list | json_query('[?state!=`absent`].vm_name') }}"
-      inventory_vm_net_ips:     "{{ ansible_play_hosts_all | reject('==', 'localhost') | map('extract', hostvars, []) | list | json_query('[?state!=`absent`].vm_net_ip') }}"
-# BUG: ansible_play_hosts_all will not get duplicate names IF YAML inventory colliding name keys are in different folders, latest key definition will override previous
+    delegate_to:                localhost
+    delegate_facts:             true
+    when:
+    - inventory_hostname != 'localhost'
+    - state is not defined or state != 'absent'
+    - vm_name is defined
+    - vm_net_ip is defined
+    set_fact:                   # DEV HACK: localhost accumulator
+      inventory_vm_names:       "{{ hostvars.localhost.inventory_vm_names   | default([]) + [ vm_name ] }}"
+      inventory_vm_net_ips:     "{{ hostvars.localhost.inventory_vm_net_ips | default([]) + [ vm_net_ip ] }}"
