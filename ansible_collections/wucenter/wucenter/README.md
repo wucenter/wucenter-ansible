@@ -285,26 +285,27 @@ Following credentials definitions are required:
 + Template password-less sudoer (for provisioning)
 + `robops` sudoer (for alignment)
 + `ops` SSH sudoer (for additional roles)
-+ Private GIT user (for custom roles, optional)
++ Private Git repository user (for custom roles, optional)
++ Private Docker registry user (for custom roles, optional)
 
 Configuration consists of YAML files in `credentials` directory (or symlink).
 
-| Main playbooks     | `vcenter.yml` | `template.yml` | `robops.yml` | `ops.yml` | `git.yml` | `vmware.yml` |
-| :-------------     | :---          | :---           | :---         | :---      | :---      | :---         |
-| `apply.yml`        | ✔             | ✔              | ✔            | ✔         | ❓         |              |
-| `scan.yml`         | ✔             |                |              |           |           |              |
-| `decommission.yml` | ✔             |                |              |           |           |              |
-| `rename.yml`       | ✔             |                | ✔            |           |           |              |
-| `provision.yml`    | ✔             | ✔              |              |           |           |              |
-| `align.yml`        | ✔             |                | ✔            |           |           |              |
-| `apps.yml`         | ✔             |                |              | ✔         | ❓         |              |
-| More playbooks     |               |                |              |           |           |              |
-| `lint_full.yml`    | ✔             | ✔              | ✔            | ✔         |           | ✔            |
-| `lint.yml`         | ✔             | ✔              | ✔            | ✔         |           |              |
-| `audit.yml`        | ✔             |                | ✔            |           |           |              |
-| `updates.yml`      |               |                | ✔            |           |           |              |
-| `init.yml`         | ✔             | ✔              | ✔            | ✔         |           |              |
-| `setup.yml`        |               |                |              |           |           |              |
+| Main playbooks     | `vcenter.yml` | `template.yml` | `robops.yml` | `ops.yml` | `git.yml` | `registry.yml` | `vmware.yml` |
+| :-------------     | :---          | :---           | :---         | :---      | :---      | :---           | :---         |
+| `apply.yml`        | ✔             | ✔              | ✔            | ✔         | ❓         | ❓              |              |
+| `scan.yml`         | ✔             |                |              |           |           |                |              |
+| `decommission.yml` | ✔             |                |              |           |           |                |              |
+| `rename.yml`       | ✔             |                | ✔            |           |           |                |              |
+| `provision.yml`    | ✔             | ✔              |              |           |           |                |              |
+| `align.yml`        | ✔             |                | ✔            |           |           |                |              |
+| `apps.yml`         | ✔             |                |              | ✔         | ❓         | ❓              |              |
+| More playbooks     |               |                |              |           |           |                |              |
+| `lint_full.yml`    | ✔             | ✔              | ✔            | ✔         |           |                | ✔            |
+| `lint.yml`         | ✔             | ✔              | ✔            | ✔         |           |                |              |
+| `audit.yml`        | ✔             |                | ✔            |           |           |                |              |
+| `updates.yml`      |               |                | ✔            |           |           |                |              |
+| `init.yml`         | ✔             | ✔              | ✔            | ✔         |           |                |              |
+| `setup.yml`        |               |                |              |           |           |                |              |
 
 Credential files supports Ansible Vault both for full file-vaulting and for YAML key vaulting.
 
