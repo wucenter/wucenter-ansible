@@ -117,6 +117,12 @@ if [[ -n $git_host ]] ; then
     git_pass=$(  AskPass "Git password" )
 fi
 
+registry_host=$(      AskText "Registry host, OPTIONAL" )
+if [[ -n $registry_host ]] ; then
+    registry_user=$(  AskText "Registry username" )
+    registry_pass=$(  AskPass "Registry password" )
+fi
+
 ops_user=$(      AskText "Ops username" )
 ops_pass=$(      AskPass "Ops password" )
 ops_sshk=$(      AskSshk "Ops SSH private key" )
@@ -182,6 +188,16 @@ if [[ -n $git_host ]] ; then
 git_host: "$git_host"
 git_user: "$git_user"
 $( VaultKey "git_pass" "$git_pass" )
+EOY
+fi
+
+if [[ -n $registry_host ]] ; then
+    Say "Generating registry.yml: Registry creds"
+    cat <<EOY >credentials/registry.yml
+---
+registry_host: "$registry_host"
+registry_user: "$registry_user"
+$( VaultKey "registry_pass" "$registry_pass" )
 EOY
 fi
 

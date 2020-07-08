@@ -29,11 +29,19 @@
 
 
 
-- name: Vars    | GIT credentials
+- name: Vars    | Git repo credentials
   no_log:                       true
   ignore_errors:                true
   include_vars:
     file:                       "{{ wucenter_basedir }}credentials/git.yml"
+
+
+
+- name: Vars    | Docker registry credentials
+  no_log:                       true
+  ignore_errors:                true
+  include_vars:
+    file:                       "{{ wucenter_basedir }}credentials/registry.yml"
 
 
 
