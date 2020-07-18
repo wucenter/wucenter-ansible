@@ -22,7 +22,7 @@
 
 
 
-- name: Facts   | Ansible facts
+- name: Facts   | SSH private key
   no_log:                   true
   set_fact:
     ansible_ssh_private_key_file: "{{ wucenter_basedir }}credentials/SSH_SKEY"
@@ -60,6 +60,7 @@
   when:                     (check_ssh_reachable.stdout is not defined) or (check_ssh_reachable.stdout|int != 0)
   fail:
     msg:                    "Unrootable ssh://{{ ops_user }}@{{ ansible_host }}"
+
 
 
 - name: Roles   | Import apps/ tagged roles
@@ -103,6 +104,5 @@
 
 
 - name: Tasks   | Bury apps attributes
-  # become:                   false  # DEV: playbook may be set as become:true
   include_role:
     name:                   wucenter_bury_apps

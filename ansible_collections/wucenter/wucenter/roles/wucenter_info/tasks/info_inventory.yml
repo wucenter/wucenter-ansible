@@ -83,7 +83,7 @@
       - {{ inventory_vm_name }}
       {% endif %}
       {% endfor %}
-# TODO more checks to flag a VM as unmanaged ???
+# TODO more checks to flag a VM as unmanaged ??? buried cache ?
 
 
 
